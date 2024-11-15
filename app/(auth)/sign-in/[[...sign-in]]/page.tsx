@@ -19,8 +19,8 @@ const poppins = Poppins({
 export default function SignInPage() {
   return (
     <main className="flex flex-col w-full min-h-screen bg-white">
-      <div className="flex flex-grow mt-10">
-        <div className="flex bg-white rounded-lg shadow-[0px_4px_15px_rgba(0,0,0,0.1)] gap-5 ml-52 max-md:flex-col max-h-[800px] max-md:max-w-full">
+      <div className="flex justify-center flex-grow mt-10">
+        <div className="flex bg-white rounded-lg shadow-[0px_4px_15px_rgba(0,0,0,0.1)] gap-5 justify-center max-md:flex-col max-h-[700px] max-md:max-w-full">
           <section
             className="w-[450px] h-auto relative bg-cover bg-center rounded-lg"
             style={{
