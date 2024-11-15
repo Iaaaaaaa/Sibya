@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URL = process.env.MONGODB_URL;
 
 let cached = (global as any).mongoose || { conn: null, promise: null };
 
-export const connect = async () => {
+export const connectToDatabase = async () => {
   if (cached.conn) return cached.conn;
-  if (!MONGODB_URI) throw new Error("MONGODB_URI is missing");
+  if (!MONGODB_URL) throw new Error("MONGODB_URI is missing");
   //console.log("DATABASE CONNECTION IS SUCCESSFUL");
   cached.promise =
     cached.promise ||
-    mongoose.createConnection(MONGODB_URI, {
-      dbName: "Sibya",
+    mongoose.createConnection(MONGODB_URL, {
+      dbName: "Event_Management",
       bufferCommands: false,
     });
 
