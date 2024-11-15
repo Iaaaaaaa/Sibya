@@ -1,30 +1,18 @@
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 
-const MONGODB_URL = process.env.MONGODB_URL!;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-interface MongooseConn {
-  conn: Mongoose | null;
-  promise: Promise<Mongoose> | null;
-}
-
-let cached: MongooseConn = (global as any).mongoose;
-
-if (!cached) {
-  cached = (global as any).mongoose = {
-    conn: null,
-    promise: null,
-  };
-}
+let cached = (global as any).mongoose || { conn: null, promise: null };
 
 export const connect = async () => {
   if (cached.conn) return cached.conn;
-
+  if (!MONGODB_URI) throw new Error("MONGODB_URI is missing");
+  //console.log("DATABASE CONNECTION IS SUCCESSFUL");
   cached.promise =
     cached.promise ||
-    mongoose.connect(MONGODB_URL, {
+    mongoose.createConnection(MONGODB_URI, {
       dbName: "Sibya",
       bufferCommands: false,
-      connectTimeoutMS: 30000,
     });
 
   cached.conn = await cached.promise;
