@@ -13,46 +13,39 @@ type UserInput = {
   email_addresses: EmailAddress[];
   username: string;
   contact_number: string; // Added contact number
-  role: string;
 };
 
 export const createOrUpdateUser = async (
-  clerkId: string,
-  firstName: string,
-  lastName: string,
-  profilePhoto: string,
-  emailAddresses: { email_address: string }[],
+  id: string,
+  first_name: string,
+  last_name: string,
+  image_url: string,
+  email_addresses: { email_address: string }[],
   username: string,
-  contactNumber: string,
-  role: string // New role parameter
+  contact_number: string
 ) => {
   try {
-    // Check if role is valid (either "Student" or "Faculty")
-    if (!["Student", "Faculty"].includes(role)) {
-      throw new Error("Invalid role");
-    }
+    await connectToDB();
 
-    // Create or update the user with the role
     const user = await User.findOneAndUpdate(
-      { clerkId }, // Find the user by clerkId
+      { clerkId: id },
       {
         $set: {
-          firstName,
-          lastName,
-          profilePhoto,
-          emailAddresses,
+          firstName: first_name,
+          lastName: last_name,
+          profilePhoto: image_url,
+          email: email_addresses[0]?.email_address || "",
           username,
-          contact_number: contactNumber,
-          role,
+          contactNumber: contact_number,
         },
       },
-      { new: true, upsert: true } // Create a new user if not found
+      { upsert: true, new: true } // Create a new user if one doesn't exist
     );
 
+    await user?.save();
     return user;
   } catch (error) {
-    console.error("Error creating or updating user:", error);
-    throw new Error("Failed to create or update user");
+    console.error("Error in createOrUpdateUser:", error);
   }
 };
 
