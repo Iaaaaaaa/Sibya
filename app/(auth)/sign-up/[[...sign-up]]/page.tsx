@@ -81,7 +81,6 @@ const SignUpPage: React.FC = () => {
                     <Clerk.FieldError />
                   </Clerk.Field>
                 </div>
-                <AffiliationDropdown />
                 <Clerk.Field name="contact_number">
                   <Clerk.Label className="sr-only">Contact Number</Clerk.Label>
                   <Clerk.Input
