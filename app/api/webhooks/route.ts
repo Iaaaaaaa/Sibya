@@ -76,7 +76,6 @@ export async function POST(req: Request): Promise<Response> {
       email_addresses,
       username,
       contact_number, // Include contact_number from the event
-      roles, // Include roles from the event
     } = evt.data;
 
     try {

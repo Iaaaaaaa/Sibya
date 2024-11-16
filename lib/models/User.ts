@@ -26,12 +26,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  role: {
-    // New field to store the role (Student or Faculty)
-    type: String,
-    enum: ["Student", "Faculty", "Admin"], // Only allow these two roles
-    required: false,
-  },
 });
 
 const User = mongoose.model("User", UserSchema);
