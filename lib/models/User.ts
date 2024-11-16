@@ -22,14 +22,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  contactNumber: {
-    // Corrected to camelCase for consistency
+  contact_number: {
     type: String,
     required: true,
   },
-  roles: {
-    type: [String], // Array of strings to store multiple roles
-    default: [], // Default to an empty array if no roles are provided
+  role: {
+    // New field to store the role (Student or Faculty)
+    type: String,
+    enum: ["Student", "Faculty"], // Only allow these two roles
+    required: true,
   },
 });
 
