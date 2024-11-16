@@ -8,7 +8,7 @@ function Logo() {
       loading="lazy"
       src={logo} // Directly reference from public
       alt="Caraga State University Logo"
-      className="object-contain max-w-full aspect-square w-[126px]"
+      className="object-contain max-w-full aspect-square w-[126px] "
     />
   );
 }

@@ -1,19 +1,10 @@
 "use client";
 
+import React from "react";
 import Logo from "./Logo";
 import * as SignUp from "@clerk/elements/sign-up";
 import * as Clerk from "@clerk/elements/common";
-import { useState } from "react";
-import { Montserrat } from "next/font/google";
-import { Poppins } from "next/font/google";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Montserrat, Poppins } from "next/font/google";
 
 const montserrat = Montserrat({
   weight: "700",
@@ -27,21 +18,22 @@ const poppins = Poppins({
 
 const SignUpPage: React.FC = () => {
   return (
-    <main className="flex flex-col w-full min-h-screen bg-white">
+    <main className="flex flex-col justify-center w-full min-h-screen px-5 overflow-hidden bg-white sm:px-10">
       <div className="flex justify-center flex-grow mt-10">
-        <div className="flex bg-white rounded-lg shadow-[0px_4px_15px_rgba(0,0,0,0.1)] gap-5 justify-center max-md:flex-col max-h-[700px] max-md:max-w-full">
+        <div className="flex bg-white rounded-lg shadow-[0px_4px_15px_rgba(0,0,0,0.1)] gap-5  max-md:flex-col max-h-[700px] max-md:max-w-full sm:w-[90%] lg:w-[70%]">
           <section
-            className="w-[450px] h-auto relative bg-cover bg-center rounded-lg"
+            className="w-full h-56 bg-center bg-cover rounded-lg sm:w-[450px] sm:h-auto"
             style={{
               backgroundImage:
                 "url('https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/097e29cdb461256914f24e948fd0d5df90bbe698a523ae882bff1f9787a8aa02?apiKey=69d26e7d3134467f9c216eb5f38b89f7&')",
             }}
           >
-            <div className="absolute inset-0 "></div>
-            <div className="relative z-10 flex flex-col h-full p-5">
+            <div className="relative z-10 flex flex-col h-full p-5 text-white">
               <Logo />
-              <div className="flex flex-col max-w-md mb-20">
-                <h1 className="text-2xl font-extrabold leading-tight text-white">
+              <div className="flex flex-col max-w-md ">
+                <h1
+                  className={`${montserrat.className} text-xl sm:text-2xl font-extrabold leading-tight`}
+                >
                   Stay{" "}
                   <span className="italic">
                     Informed,
@@ -49,7 +41,7 @@ const SignUpPage: React.FC = () => {
                   </span>{" "}
                   Stay <span className="italic">Engaged.</span>
                 </h1>
-                <p className="text-white text-s">
+                <p className={`${poppins.className} text-sm sm:text-base`}>
                   Sibya: Caraga State University Event Hub
                 </p>
               </div>
@@ -57,90 +49,80 @@ const SignUpPage: React.FC = () => {
           </section>
 
           <SignUp.Root>
-            {/* First Step: Collect basic info */}
             <SignUp.Step
-              className="w-full place-content-center space-y-6 rounded-2xl px-4 py-10 sm:w-[750px] sm:px-8"
+              className="w-full sm:w-[450px] px-4 py-6 space-y-6 sm:px-8 bg-white rounded-lg mt-24"
               name="start"
             >
-              <div className="ml-24">
-                <h2
-                  className={`${poppins.className} self-start text-3xl font-bold text-[#094005]`}
-                >
-                  Sign Up
-                </h2>
-                <div className="flex">
+              <h2
+                className={`${montserrat.className} text-2xl font-bold text-[#094005] text-center sm:text-left`}
+              >
+                Sign Up
+              </h2>
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row">
                   <Clerk.Field name="firstName">
-                    <Clerk.Label className="sr-only">First Name</Clerk.Label>
                     <Clerk.Input
-                      type="firstName"
+                      type="text"
                       required
                       placeholder="First Name"
-                      className={`${poppins.className} w-[240px] h-[47px] border-2 mt-12 rounded-lg border-black bg-white pb-2 text-sm/6 indent-3 text-neutral-950 outline-none placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600`}
+                      className={`${poppins.className} w-full  border-2 border-black rounded-lg px-3 py-2  pb-2 text-sm/6 indent-3 text-neutral-950  placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600 outline-none`}
                     />
-                    <Clerk.FieldError />
                   </Clerk.Field>
                   <Clerk.Field name="lastName">
-                    <Clerk.Label className="sr-only">Last Name</Clerk.Label>
                     <Clerk.Input
-                      type="lastName"
+                      type="text"
                       required
                       placeholder="Last Name"
-                      className={`${poppins.className} w-[240px] h-[47px] border-2 ml-3 mt-12 rounded-lg border-black bg-white pb-2 text-sm/6 indent-3 text-neutral-950 outline-none placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600`}
+                      className={`${poppins.className} w-full  border-2 border-black rounded-lg px-3 py-2  pb-2 text-sm/6 indent-3 text-neutral-950  placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600 outline-none`}
                     />
-                    <Clerk.FieldError />
                   </Clerk.Field>
                 </div>
 
                 <Clerk.Field name="emailAddress">
-                  <Clerk.Label className="sr-only">Email</Clerk.Label>
                   <Clerk.Input
                     type="email"
                     required
                     placeholder="CarSu Email"
-                    className={`${poppins.className} w-[492px] h-[47px] border-2 mt-3 rounded-lg border-black bg-white pb-2 text-sm/6 indent-3 text-neutral-950 outline-none placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600`}
+                    className={`${poppins.className} w-full border-2 border-black rounded-lg px-3 py-2  pb-2 text-sm/6 indent-3 text-neutral-950  placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600 outline-none`}
                   />
-                  <Clerk.FieldError className="block mt-2 text-xs text-red-600" />
                 </Clerk.Field>
+
                 <Clerk.Field name="password">
-                  <Clerk.Label className="sr-only">Password</Clerk.Label>
                   <Clerk.Input
                     type="password"
                     required
                     placeholder="Password"
-                    className={`${poppins.className} w-[492px] h-[47px] border-2 mt-3 rounded-lg border-black bg-white pb-2 text-sm/6 indent-3 text-neutral-950 outline-none placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600`}
+                    className={`${poppins.className} w-full  border-2 border-black rounded-lg px-3 py-2  pb-2 text-sm/6 indent-3 text-neutral-950  placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600 outline-none`}
                   />
-                  <Clerk.FieldError />
                 </Clerk.Field>
 
                 <SignUp.Action
                   submit
-                  className="w-[492px] h-[50px] mt-4 text-xl font-semibold text-white whitespace-nowrap bg-green-700 rounded-2xl max-md:px-5"
+                  className="w-full py-2 text-lg font-semibold text-white bg-[#34802E] rounded-lg hover:bg-green-800"
                 >
                   Register
                 </SignUp.Action>
 
-                <p className="mt-3 text-sm font-bold text-black ml-36">
+                <p className="text-sm text-center">
                   Already have an account?{" "}
                   <Clerk.Link
                     navigate="sign-in"
-                    className={`${poppins.className} rounded px-1 py-0.5 text-neutral-700 outline-none hover:bg-neutral-300 bg-neutral-100 focus-visible:bg-neutral-100`}
+                    className="text-green-700 hover:underline"
                   >
                     Log in
                   </Clerk.Link>
                 </p>
-                <p className="text-sm mt-3 font-bold text-black ml-[190px] ">
+                <p className="text-sm text-center">
                   or{" "}
                   <Clerk.Link
                     navigate="sign-up"
-                    className="rounded px-1 py-0.5 text-black outline-none hover:bg-neutral-300 bg-neutral-100 focus-visible:bg-neutral-100"
+                    className="text-green-700 hover:underline"
                   >
-                    Log in
-                  </Clerk.Link>{" "}
-                  as Guest{" "}
+                    Log in as Guest
+                  </Clerk.Link>
                 </p>
               </div>
             </SignUp.Step>
-            {/* Second Step: Email verification */}
             <SignUp.Step
               name="verifications"
               className="w-full px-4 py-10 space-y-6 bg-white shadow-md rounded-2xl ring-1 ring-black/5 sm:w-96 sm:px-8"
