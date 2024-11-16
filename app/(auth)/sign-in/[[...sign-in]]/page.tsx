@@ -57,7 +57,7 @@ export default function SignInPage() {
                 <h1
                   className={`${montserrat.className} mt-20
                   text-2xl
-                  text-green-900`}
+                  text-[#094005]`}
                 >
                   Glad You're Back!
                 </h1>

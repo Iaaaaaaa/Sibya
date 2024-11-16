@@ -9,6 +9,8 @@ type WebhookEventData = {
   image_url?: string;
   email_addresses?: { email_address: string }[];
   username?: string;
+  contact_number?: string; // Added contact_number
+  roles?: string[]; // Added roles
 };
 
 type WebhookEvent = {
@@ -17,7 +19,6 @@ type WebhookEvent = {
 };
 
 export async function POST(req: Request): Promise<Response> {
-  // You can find this in the Clerk Dashboard -> Webhooks -> choose the endpoint
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
@@ -32,7 +33,6 @@ export async function POST(req: Request): Promise<Response> {
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
 
-  // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
     return new Response("Error occurred -- no svix headers", {
       status: 400,
@@ -69,8 +69,15 @@ export async function POST(req: Request): Promise<Response> {
   console.log("Webhook body:", body);
 
   if (eventType === "user.created" || eventType === "user.updated") {
-    const { first_name, last_name, image_url, email_addresses, username } =
-      evt.data;
+    const {
+      first_name,
+      last_name,
+      image_url,
+      email_addresses,
+      username,
+      contact_number, // Include contact_number from the event
+      roles, // Include roles from the event
+    } = evt.data;
 
     try {
       await createOrUpdateUser(
@@ -79,7 +86,9 @@ export async function POST(req: Request): Promise<Response> {
         last_name || "",
         image_url || "",
         email_addresses || [],
-        username || ""
+        username || "",
+        contact_number || "", // Pass contact_number
+        roles || [] // Pass roles
       );
       return new Response("User is created or updated", {
         status: 200,

@@ -1,6 +1,7 @@
 import User from "@/lib/models/User";
 import { connectToDB } from "../../mongodb/mongoose";
 
+// Updated UserInput type with contact number
 type EmailAddress = {
   email_address: string;
 };
@@ -11,6 +12,7 @@ type UserInput = {
   image_url: string;
   email_addresses: EmailAddress[];
   username: string;
+  contact_number: string; // Added contact number
 };
 
 export const createOrUpdateUser = async (
@@ -18,8 +20,10 @@ export const createOrUpdateUser = async (
   first_name: string,
   last_name: string,
   image_url: string,
-  email_addresses: EmailAddress[],
-  username: string
+  email_addresses: { email_address: string }[],
+  username: string,
+  contact_number: string,
+  roles: string[] // Add roles parameter
 ) => {
   try {
     await connectToDB();
@@ -31,11 +35,13 @@ export const createOrUpdateUser = async (
           firstName: first_name,
           lastName: last_name,
           profilePhoto: image_url,
-          email: email_addresses[0].email_address,
-          username: username,
+          email: email_addresses[0]?.email_address || "",
+          username,
+          contactNumber: contact_number,
+          roles, // Update roles
         },
       },
-      { upsert: true, new: true } // if user doesn't exist, create a new one
+      { upsert: true, new: true } // Create a new user if one doesn't exist
     );
 
     await user?.save();
@@ -45,11 +51,23 @@ export const createOrUpdateUser = async (
   }
 };
 
+// Deleting user by clerkId
 export const deleteUser = async (id: string) => {
   try {
+    // Establish DB connection
     await connectToDB();
-    await User.findOneAndDelete({ clerkId: id });
+
+    // Delete user based on clerkId
+    const deletedUser = await User.findOneAndDelete({ clerkId: id });
+
+    if (!deletedUser) {
+      console.log("User not found for deletion");
+      return null; // Return null if user was not found
+    }
+
+    return deletedUser;
   } catch (error) {
     console.error("Error in deleteUser:", error);
+    throw new Error("Error deleting user");
   }
 };
