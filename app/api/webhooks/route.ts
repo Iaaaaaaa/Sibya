@@ -10,7 +10,7 @@ type WebhookEventData = {
   email_addresses?: { email_address: string }[];
   username?: string;
   contact_number?: string;
-  role?: string; // Include role field here
+  role?: string;
 };
 
 type WebhookEvent = {
@@ -77,12 +77,12 @@ export async function POST(req: Request): Promise<Response> {
       email_addresses,
       username,
       contact_number,
-      role, // Capture the role from the event
+      role,
     } = evt.data;
 
     // Ensure role is included in the event
     if (!role) {
-      return new Response("Role is required", { status: 400 });
+      console.log(role);
     }
 
     try {
@@ -95,7 +95,7 @@ export async function POST(req: Request): Promise<Response> {
         email_addresses || [],
         username || "",
         contact_number || "",
-        role // Pass role along with the other user data
+        role || "" // Pass role along with the other user data
       );
       return new Response("User is created or updated", {
         status: 200,

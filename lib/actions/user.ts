@@ -13,6 +13,7 @@ type UserInput = {
   email_addresses: EmailAddress[];
   username: string;
   contact_number: string; // Added contact number
+  role: string;
 };
 
 export const createOrUpdateUser = async (

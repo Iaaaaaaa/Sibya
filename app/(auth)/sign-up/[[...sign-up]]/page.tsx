@@ -1,12 +1,19 @@
 "use client";
 
-import React from "react";
 import Logo from "./Logo";
 import * as SignUp from "@clerk/elements/sign-up";
 import * as Clerk from "@clerk/elements/common";
+import { useState } from "react";
 import { Montserrat } from "next/font/google";
 import { Poppins } from "next/font/google";
-import AffiliationDropdown from "./AffiliationDropdown";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const montserrat = Montserrat({
   weight: "700",
@@ -48,14 +55,16 @@ const SignUpPage: React.FC = () => {
               </div>
             </div>
           </section>
+
           <SignUp.Root>
+            {/* First Step: Collect basic info */}
             <SignUp.Step
               className="w-full place-content-center space-y-6 rounded-2xl px-4 py-10 sm:w-[750px] sm:px-8"
               name="start"
             >
               <div className="ml-24">
                 <h2
-                  className={`${poppins.className}self-start text-3xl font-bold text-[#094005]`}
+                  className={`${poppins.className} self-start text-3xl font-bold text-[#094005]`}
                 >
                   Sign Up
                 </h2>
@@ -81,10 +90,28 @@ const SignUpPage: React.FC = () => {
                     <Clerk.FieldError />
                   </Clerk.Field>
                 </div>
-                <Clerk.Field name="contact_number">
+                <Clerk.Field name="role">
+                  <Clerk.Label className="sr-only">role</Clerk.Label>
+                  <Select>
+                    <SelectTrigger className="w-[492px] h-[47px] border-2 mt-3 rounded-lg border-black bg-white pb-2 text-sm/6 outline-none placeholder:text-black">
+                      <SelectValue placeholder="Select Affiliation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Student">
+                        Student from Caraga State University
+                      </SelectItem>
+                      <SelectItem value="Faculty">
+                        Faculty from Caraga State University
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Clerk.FieldError />
+                </Clerk.Field>
+
+                <Clerk.Field name="phone_number">
                   <Clerk.Label className="sr-only">Contact Number</Clerk.Label>
                   <Clerk.Input
-                    type="contact_number"
+                    type="number"
                     required
                     placeholder="Contact Number"
                     className={`${poppins.className} w-[492px] h-[47px] border-2 mt-3 rounded-lg border-black bg-white pb-2 text-sm/6 indent-3 text-neutral-950 outline-none placeholder:text-black  focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600`}
@@ -111,17 +138,19 @@ const SignUpPage: React.FC = () => {
                   />
                   <Clerk.FieldError />
                 </Clerk.Field>
+
                 <SignUp.Action
                   className="w-[492px] h-[50px] mt-4 text-xl font-semibold text-white whitespace-nowrap bg-green-700 rounded-2xl max-md:px-5"
                   submit
                 >
                   Register
                 </SignUp.Action>
+
                 <p className="mt-3 text-sm font-bold text-black ml-36">
                   Already have an account?{" "}
                   <Clerk.Link
                     navigate="sign-in"
-                    className={`${poppins.className}rounded px-1 py-0.5 text-neutral-700 outline-none hover:bg-neutral-300 bg-neutral-100 focus-visible:bg-neutral-100`}
+                    className={`${poppins.className} rounded px-1 py-0.5 text-neutral-700 outline-none hover:bg-neutral-300 bg-neutral-100 focus-visible:bg-neutral-100`}
                   >
                     Log in
                   </Clerk.Link>
@@ -137,6 +166,43 @@ const SignUpPage: React.FC = () => {
                   as Guest{" "}
                 </p>
               </div>
+            </SignUp.Step>
+            {/* Second Step: Email verification */}
+            <SignUp.Step name="verifications">
+              <header className="flex justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-8 h-8 mt-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <g>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M43.5 23a.5.5 0 0 0 0-1v1Zm0-1h-46v1h46v-1ZM43.5 28a.5.5 0 0 0 0-1v1Zm0-1h-46v1h46v-1ZM43.5 33a.5.5 0 0 0 0-1v1Zm0-1h-46v1h46v-1ZM43.5 38a.5.5 0 0 0 0-1v1Zm0-1h-46v1h46v-1Z"
+                    />
+                  </g>
+                </svg>
+                <p className="mb-5 text-xs font-bold text-center text-black">
+                  Enter your email to verify your account
+                </p>
+              </header>
+              <Clerk.Field name="email_code">
+                <Clerk.Label className="sr-only">Email Code</Clerk.Label>
+                <Clerk.Input
+                  type="email_code"
+                  required
+                  placeholder="Verification code"
+                  className="h-[50px] border-2 mt-3 w-[492px] rounded-lg border-black bg-white pb-2 text-sm/6 indent-3 text-neutral-950 outline-none placeholder:text-black focus:border-neutral-600 data-[invalid]:border-red-600 data-[invalid]:text-red-600"
+                  onChange={(e) =>
+                    console.log("Verification Code: ", e.target.value)
+                  }
+                />
+                <Clerk.FieldError />
+              </Clerk.Field>
             </SignUp.Step>
           </SignUp.Root>
         </div>
