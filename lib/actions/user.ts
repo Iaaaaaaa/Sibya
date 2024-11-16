@@ -1,13 +1,25 @@
-import User from "@lib/models/User";
-import { connectToDB } from "@lib/mongodb/mongoose";
+import User from "@/lib/models/User";
+import { connectToDB } from "../../mongodb/mongoose";
+
+type EmailAddress = {
+  email_address: string;
+};
+
+type UserInput = {
+  first_name: string;
+  last_name: string;
+  image_url: string;
+  email_addresses: EmailAddress[];
+  username: string;
+};
 
 export const createOrUpdateUser = async (
-  id,
-  first_name,
-  last_name,
-  image_url,
-  email_addresses,
-  username
+  id: string,
+  first_name: string,
+  last_name: string,
+  image_url: string,
+  email_addresses: EmailAddress[],
+  username: string
 ) => {
   try {
     await connectToDB();
@@ -26,18 +38,18 @@ export const createOrUpdateUser = async (
       { upsert: true, new: true } // if user doesn't exist, create a new one
     );
 
-    await user.save();
+    await user?.save();
     return user;
   } catch (error) {
-    console.error(error);
+    console.error("Error in createOrUpdateUser:", error);
   }
 };
 
-export const deleteUser = async (id) => {
+export const deleteUser = async (id: string) => {
   try {
     await connectToDB();
     await User.findOneAndDelete({ clerkId: id });
   } catch (error) {
-    console.error(error);
+    console.error("Error in deleteUser:", error);
   }
 };

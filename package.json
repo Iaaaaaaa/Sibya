@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@clerk/elements": "^0.19.1",
-    "@clerk/nextjs": "^6.3.2",
+    "@clerk/nextjs": "^6.3.4",
     "@next/font": "^14.2.15",
     "mongodb": "^6.10.0",
     "mongoose": "^8.8.1",
