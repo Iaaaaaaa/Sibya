@@ -85,6 +85,7 @@ export async function POST(req: Request): Promise<Response> {
         status: 200,
       });
     } catch (error) {
+      console.log(first_name, last_name, role, email_addresses);
       console.error("Error creating or updating user:", error);
       return new Response("Error occurred", {
         status: 400,
