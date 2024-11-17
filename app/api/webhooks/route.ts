@@ -8,7 +8,7 @@ type WebhookEventData = {
   last_name?: string;
   image_url?: string;
   email_addresses?: { email_address: string }[];
-  role?: string; // Added roles
+  role?: string;
 };
 
 type WebhookEvent = {
@@ -67,13 +67,8 @@ export async function POST(req: Request): Promise<Response> {
   console.log("Webhook body:", body);
 
   if (eventType === "user.created" || eventType === "user.updated") {
-    const {
-      first_name,
-      last_name,
-      image_url,
-      email_addresses,
-      role, // Include contact_number from the event
-    } = evt.data;
+    const { first_name, last_name, image_url, email_addresses, role } =
+      evt.data;
 
     try {
       await createOrUpdateUser(
