@@ -4,8 +4,9 @@ const isPublicRoute = createRouteMatcher([
   "/api/webhooks",
   "/sign-in(.*)",
   "/sign-up(.*)",
-  "/",
 ]);
+
+const isPrivateRoute = createRouteMatcher(["/"]);
 
 export default clerkMiddleware((auth, req) => {
   console.log("Request URL:", req.nextUrl.pathname);
@@ -15,8 +16,11 @@ export default clerkMiddleware((auth, req) => {
     return; // Allow access to public routes
   }
 
-  console.log("Protected route accessed:", req.nextUrl.pathname);
-  auth.protect(); // Protect non-public routes
+  if (isPrivateRoute(req)) {
+    console.log("Protected route accessed:", req.nextUrl.pathname);
+    auth.protect(); // Protect non-public routes
+    return; // Allow access to public routes
+  }
 });
 
 export const config = {

@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  contact_number: {
+  role: {
     type: String,
     required: true,
   },

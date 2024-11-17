@@ -12,7 +12,7 @@ type UserInput = {
   image_url: string;
   email_addresses: EmailAddress[];
   username: string;
-  contact_number: string; // Added contact number
+  role: string;
 };
 
 export const createOrUpdateUser = async (
@@ -22,7 +22,7 @@ export const createOrUpdateUser = async (
   image_url: string,
   email_addresses: { email_address: string }[],
   username: string,
-  contact_number: string
+  role: string
 ) => {
   try {
     await connectToDB();
@@ -36,7 +36,7 @@ export const createOrUpdateUser = async (
           profilePhoto: image_url,
           email: email_addresses[0]?.email_address || "",
           username,
-          contactNumber: contact_number,
+          role,
         },
       },
       { upsert: true, new: true } // Create a new user if one doesn't exist

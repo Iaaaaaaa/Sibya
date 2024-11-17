@@ -5,6 +5,13 @@ import Logo from "./Logo";
 import * as SignUp from "@clerk/elements/sign-up";
 import * as Clerk from "@clerk/elements/common";
 import { Montserrat, Poppins } from "next/font/google";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const montserrat = Montserrat({
   weight: "700",
@@ -77,7 +84,23 @@ const SignUpPage: React.FC = () => {
                     />
                   </Clerk.Field>
                 </div>
-
+                <Clerk.Field name="role">
+                  <Select>
+                    <SelectTrigger
+                      className={`${poppins.className} w-full    border-2  rounded-lg border-black bg-white pb-2 text-sm/6 outline-none placeholder:text-black`}
+                    >
+                      <SelectValue placeholder="Select Affiliation" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Student">
+                        Student from Caraga State University
+                      </SelectItem>
+                      <SelectItem value="Faculty">
+                        Faculty from Caraga State University
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </Clerk.Field>
                 <Clerk.Field name="emailAddress">
                   <Clerk.Input
                     type="email"
