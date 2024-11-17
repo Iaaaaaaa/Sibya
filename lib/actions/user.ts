@@ -10,6 +10,14 @@ export const createOrUpdateUser = async (
   role: string
 ) => {
   try {
+    // Validate email address
+    const email = email_addresses[0]?.email_address || "";
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@carsu\.edu\.ph$/; // Regex to match @carsu.edu.ph domain
+
+    if (!emailRegex.test(email)) {
+      throw new Error("Email must be a valid @carsu.edu.ph address.");
+    }
+
     await connectToDB();
 
     const userRole = role || "User";
@@ -21,7 +29,7 @@ export const createOrUpdateUser = async (
           firstName: first_name,
           lastName: last_name,
           profilePhoto: image_url,
-          email: email_addresses[0]?.email_address || "",
+          email: email,
           role: userRole,
         },
       },
@@ -32,6 +40,7 @@ export const createOrUpdateUser = async (
     return user;
   } catch (error) {
     console.error("Error in createOrUpdateUser:", error);
+    throw error; // Rethrow error to notify calling function
   }
 };
 
