@@ -69,7 +69,24 @@ export async function POST(req: Request): Promise<Response> {
   if (eventType === "user.created" || eventType === "user.updated") {
     const { first_name, last_name, image_url, email_addresses, role } =
       evt.data;
+    const missingFields: string[] = [];
+    if (!first_name) missingFields.push("first_name");
+    if (!last_name) missingFields.push("last_name");
+    if (!image_url) missingFields.push("image_url");
+    if (!email_addresses || email_addresses.length === 0)
+      missingFields.push("email_addresses");
 
+    if (!role) missingFields.push("role");
+
+    // If there are missing fields, return a specific error message
+    if (missingFields.length > 0) {
+      return new Response(
+        `Error occurred. Missing fields: ${missingFields.join(", ")}`,
+        {
+          status: 400,
+        }
+      );
+    }
     try {
       await createOrUpdateUser(
         id,
