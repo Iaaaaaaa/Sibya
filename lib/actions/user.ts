@@ -7,8 +7,8 @@ export const createOrUpdateUser = async (
   last_name: string,
   image_url: string,
   email_addresses: { email_address: string }[],
-  username: string,
-  role: string
+  role: string,
+  p0: string
 ) => {
   try {
     await connectToDB();

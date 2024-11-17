@@ -10,7 +10,7 @@ type WebhookEventData = {
   email_addresses?: { email_address: string }[];
   username?: string;
   contact_number?: string; // Added contact_number
-  roles?: string[]; // Added roles
+  role?: string;
 };
 
 type WebhookEvent = {
@@ -75,7 +75,7 @@ export async function POST(req: Request): Promise<Response> {
       image_url,
       email_addresses,
       username,
-      contact_number, // Include contact_number from the event
+      role, // Include contact_number from the event
     } = evt.data;
 
     try {
@@ -86,7 +86,7 @@ export async function POST(req: Request): Promise<Response> {
         image_url || "",
         email_addresses || [],
         username || "",
-        contact_number || "" // Pass contact_number
+        role || ""
       );
       return new Response("User is created or updated", {
         status: 200,
