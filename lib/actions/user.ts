@@ -12,6 +12,8 @@ export const createOrUpdateUser = async (
   try {
     await connectToDB();
 
+    const userRole = role || "User";
+
     const user = await User.findOneAndUpdate(
       { clerkId: id },
       {
@@ -20,7 +22,7 @@ export const createOrUpdateUser = async (
           lastName: last_name,
           profilePhoto: image_url,
           email: email_addresses[0]?.email_address || "",
-          role: role,
+          role: userRole,
         },
       },
       { upsert: true, new: true } // Create a new user if one doesn't exist
