@@ -13,7 +13,7 @@ export const createOrUpdateUser = async (
     await connectToDB();
 
     // Validate the role
-    const allowedRoles = ["Admin", "User", "Student", "Faculty"];
+    const allowedRoles = ["Admin", "Student", "Faculty"];
     if (!allowedRoles.includes(role)) {
       throw new Error(
         `Invalid role: ${role}. Allowed roles: ${allowedRoles.join(", ")}`

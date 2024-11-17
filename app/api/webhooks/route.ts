@@ -8,8 +8,6 @@ type WebhookEventData = {
   last_name?: string;
   image_url?: string;
   email_addresses?: { email_address: string }[];
-  username?: string;
-  contact_number?: string; // Added contact_number
   role?: string;
 };
 
@@ -34,7 +32,7 @@ export async function POST(req: Request): Promise<Response> {
   const svix_signature = headerPayload.get("svix-signature");
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response("Error occurred -- no svix headers", {
+    return new Response("3Error occurred -- no svix headers", {
       status: 400,
     });
   }
@@ -56,8 +54,8 @@ export async function POST(req: Request): Promise<Response> {
       "svix-signature": svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error("Error verifying webhook:", err);
-    return new Response("Error occurred", {
+    console.error("2Error verifying webhook:", err);
+    return new Response("1Error occurred", {
       status: 400,
     });
   }
@@ -87,7 +85,7 @@ export async function POST(req: Request): Promise<Response> {
     } catch (error) {
       console.log(first_name, last_name, role, email_addresses);
       console.error("Error creating or updating user:", error);
-      return new Response("Error occurred", {
+      return new Response("5Error occurred", {
         status: 400,
       });
     }
@@ -100,8 +98,8 @@ export async function POST(req: Request): Promise<Response> {
         status: 200,
       });
     } catch (error) {
-      console.error("Error deleting user:", error);
-      return new Response("Error occurred", {
+      console.error("7Error deleting user:", error);
+      return new Response("6Error occurred", {
         status: 400,
       });
     }
