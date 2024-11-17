@@ -85,9 +85,10 @@ const SignUpPage: React.FC = () => {
                   </Clerk.Field>
                 </div>
                 <Clerk.Field name="role">
+                  <Clerk.Label className="sr-only">Role</Clerk.Label>
                   <Select>
                     <SelectTrigger
-                      className={`${poppins.className} w-full    border-2  rounded-lg border-black bg-white pb-2 text-sm/6 outline-none placeholder:text-black`}
+                      className={`${poppins.className} w-full border-2 rounded-lg border-black bg-white pb-2 text-sm/6 outline-none placeholder:text-black`}
                     >
                       <SelectValue placeholder="Select Affiliation" />
                     </SelectTrigger>
@@ -101,6 +102,7 @@ const SignUpPage: React.FC = () => {
                     </SelectContent>
                   </Select>
                 </Clerk.Field>
+
                 <Clerk.Field name="emailAddress">
                   <Clerk.Input
                     type="email"
