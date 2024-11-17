@@ -7,12 +7,20 @@ export const createOrUpdateUser = async (
   last_name: string,
   image_url: string,
   email_addresses: { email_address: string }[],
-  role: string,
-  p0: string
+  role: string
 ) => {
   try {
     await connectToDB();
 
+    // Validate the role
+    const allowedRoles = ["Admin", "User", "Student", "Faculty"];
+    if (!allowedRoles.includes(role)) {
+      throw new Error(
+        `Invalid role: ${role}. Allowed roles: ${allowedRoles.join(", ")}`
+      );
+    }
+
+    // Create or update the user
     const user = await User.findOneAndUpdate(
       { clerkId: id },
       {
@@ -21,7 +29,7 @@ export const createOrUpdateUser = async (
           lastName: last_name,
           profilePhoto: image_url,
           email: email_addresses[0]?.email_address || "",
-          role: role,
+          role,
         },
       },
       { upsert: true, new: true } // Create a new user if one doesn't exist
@@ -31,6 +39,7 @@ export const createOrUpdateUser = async (
     return user;
   } catch (error) {
     console.error("Error in createOrUpdateUser:", error);
+    throw new Error("Error creating or updating user");
   }
 };
 
