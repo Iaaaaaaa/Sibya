@@ -1,20 +1,6 @@
 import User from "@/lib/models/User";
 import { connectToDB } from "../../mongodb/mongoose";
 
-// Updated UserInput type with contact number
-type EmailAddress = {
-  email_address: string;
-};
-
-type UserInput = {
-  first_name: string;
-  last_name: string;
-  image_url: string;
-  email_addresses: EmailAddress[];
-  username: string;
-  role: string;
-};
-
 export const createOrUpdateUser = async (
   id: string,
   first_name: string,
@@ -35,8 +21,7 @@ export const createOrUpdateUser = async (
           lastName: last_name,
           profilePhoto: image_url,
           email: email_addresses[0]?.email_address || "",
-          username,
-          role,
+          role: role,
         },
       },
       { upsert: true, new: true } // Create a new user if one doesn't exist
