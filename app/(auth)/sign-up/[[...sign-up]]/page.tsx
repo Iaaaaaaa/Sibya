@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Logo from "./Logo";
 import * as SignUp from "@clerk/elements/sign-up";
 import * as Clerk from "@clerk/elements/common";
@@ -24,12 +24,6 @@ const poppins = Poppins({
 });
 
 const SignUpPage: React.FC = () => {
-  const [role, setRole] = useState("");
-
-  // Handle role selection
-  const handleRoleChange = (value: string) => {
-    setRole(value);
-  };
   return (
     <main className="flex flex-col justify-center w-full min-h-screen px-5 overflow-hidden bg-white sm:px-10">
       <div className="flex justify-center flex-grow mt-10">
@@ -90,24 +84,6 @@ const SignUpPage: React.FC = () => {
                     />
                   </Clerk.Field>
                 </div>
-                <Clerk.Field name="role">
-                  <Clerk.Label className="sr-only">Role</Clerk.Label>
-                  <Select onValueChange={handleRoleChange}>
-                    <SelectTrigger
-                      className={`${poppins.className} w-full border-2 rounded-lg border-black bg-white pb-2 text-sm/6 outline-none placeholder:text-black`}
-                    >
-                      <SelectValue placeholder="Select Affiliation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Student">
-                        Student from Caraga State University
-                      </SelectItem>
-                      <SelectItem value="Faculty">
-                        Faculty from Caraga State University
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Clerk.Field>
 
                 <Clerk.Field name="emailAddress">
                   <Clerk.Input
