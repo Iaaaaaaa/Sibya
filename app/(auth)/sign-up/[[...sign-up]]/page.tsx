@@ -5,13 +5,6 @@ import Logo from "./Logo";
 import * as SignUp from "@clerk/elements/sign-up";
 import * as Clerk from "@clerk/elements/common";
 import { Montserrat, Poppins } from "next/font/google";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const montserrat = Montserrat({
   weight: "700",

@@ -1,8 +1,8 @@
-import { UserButton } from "@clerk/nextjs";
+import Side from "@/components/layout/Side";
 import React from "react";
 
 const page = () => {
-  return <UserButton />;
+  return <div></div>;
 };
 
 export default page;
