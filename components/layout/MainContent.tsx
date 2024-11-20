@@ -1,31 +1,57 @@
 "use client";
 
-import React from "react";
+import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import SearchBar from "../SearchBar";
 import FeedItem from "../FeedItem";
+import PageView from "../../app/(root)/pages/[pageId]/page"; // Import the PageView component
+import { PlusCircle } from "lucide-react";
+import { Button } from "../ui/button";
 
-interface MainContentProps {
-  children: React.ReactNode; // Declare children prop to allow content to be passed to MainContent
-}
+const MainContent = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
+  const [isPageDirectory, setIsPageDirectory] = useState(false);
+  const [isPosts, setIsPosts] = useState(false);
+  const [isPageView, setIsPageView] = useState(false);
+  const router = useRouter();
 
-const MainContent: React.FC<MainContentProps> = ({ children }) => {
+  useEffect(() => {
+    // Check if the current route is '/pages'
+    setIsPageDirectory(pathname === "/pages");
+    setIsPosts(pathname === "/");
+
+    // Check if the pathname matches a specific page (e.g., '/pages/[pageId]')
+    if (pathname.includes("/pages/")) {
+      setIsPageView(true);
+    } else if (pathname === "/") {
+      setIsPosts(true);
+    } else {
+      setIsPageView(false);
+      setIsPosts(false);
+    }
+  }, [pathname]);
+
   return (
-    <main className="flex flex-col ml-5 w-[43%] max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col w-full mt-24 max-md:mt-10 max-md:max-w-full">
+    <main className="flex flex-col ml-24 w-[52%] max-md:ml-0 max-md:w-full">
+      <div className="flex flex-col w-full h-full mt-24 max-md:mt-10 max-md:max-w-full">
         <SearchBar />
-        <h1 className="self-start mt-20 text-3xl font-extrabold leading-none text-lime-950 max-md:mt-10">
-          Feed
+        <h1 className="self-start text-3xl font-extrabold leading-none text-lime-950 max-md:mt-10">
+          {isPageDirectory
+            ? "Pages"
+            : isPageView
+            ? "Page View"
+            : isPosts
+            ? "Feed"
+            : "No Content"}
         </h1>
-        <FeedItem />
-        <div className="flex flex-col px-7 pt-9 mt-7 bg-grey-500 rounded-xl shadow-[0px_4px_15px_rgba(0,0,0,0.1)] max-md:px-5 max-md:max-w-full">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/c62b02c42f7154e78beccf5a6619bd506b35f9172018206688e3729cb94fd0e6?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
-            alt="Decorative image"
-            className="object-contain aspect-[8.2] w-[509px] max-md:max-w-full"
-          />
-          {/* Render children or fallback content if no children are passed */}
-          {children || <p>No content available</p>} {/* Default fallback */}
+        <div className="flex flex-col mt-7 bg-grey-500 rounded-xl shadow-[0px_4px_15px_rgba(0,0,0,0.1)]  max-md:max-w-full ">
+          {isPageView ? (
+            <PageView />
+          ) : children ? (
+            children
+          ) : (
+            <p>No content available</p>
+          )}
         </div>
       </div>
     </main>

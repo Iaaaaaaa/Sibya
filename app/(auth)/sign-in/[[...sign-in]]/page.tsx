@@ -5,6 +5,7 @@ import Logo from "./Logo";
 import * as SignIn from "@clerk/elements/sign-in";
 import * as Clerk from "@clerk/elements/common";
 import { Montserrat, Poppins } from "next/font/google";
+import Link from "next/link";
 
 const montserrat = Montserrat({
   weight: "700",
@@ -95,12 +96,12 @@ const SignInPage: React.FC = () => {
                 </p>
                 <p className="text-sm text-center">
                   or{" "}
-                  <Clerk.Link
-                    navigate="sign-up"
+                  <Link
+                    href="/guest"
                     className="text-green-700 hover:underline"
                   >
                     Log in as Guest
-                  </Clerk.Link>
+                  </Link>
                 </p>
               </div>
             </SignIn.Step>

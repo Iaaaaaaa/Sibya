@@ -1,29 +1,31 @@
-"use client";
-
 import React from "react";
-import SearchBar from "./SearchBar";
-import FeedItem from "./FeedItem";
 
-const MainContent: React.FC = () => {
+const SearchBar: React.FC = () => {
   return (
-    <main className="flex flex-col ml-5 w-[43%] max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col w-full mt-24 max-md:mt-10 max-md:max-w-full">
-        <SearchBar />
-        <h1 className="self-start mt-20 text-3xl font-extrabold leading-none text-lime-950 max-md:mt-10">
-          Feed
-        </h1>
-        <FeedItem />
-        <div className="flex flex-col px-7 pt-9 mt-7 bg-white rounded-xl shadow-[0px_4px_15px_rgba(0,0,0,0.1)] max-md:px-5 max-md:max-w-full">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/c62b02c42f7154e78beccf5a6619bd506b35f9172018206688e3729cb94fd0e6?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
-            alt=""
-            className="object-contain aspect-[8.2] w-[509px] max-md:max-w-full"
-          />
-        </div>
+    <div className="flex gap-3.5 self-end text-base font-medium leading-none text-black max-md:mr-2.5">
+      <div className="flex flex-auto gap-3.5 px-4 py-3.5 bg-neutral-200 rounded-[38px]">
+        <img
+          loading="lazy"
+          src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/b7c5e1ad1816e4cb07db3bd890c93c5ed74cf9006a980623bef3a22084f2e044?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
+          alt=""
+          className="object-contain shrink-0 aspect-square w-[17px]"
+        />
+        <input
+          type="text"
+          placeholder="Search for events"
+          className="flex-auto my-auto bg-transparent outline-none"
+        />
       </div>
-    </main>
+      <button aria-label="Additional options">
+        <img
+          loading="lazy"
+          src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/d5f4e6ac36b52031ed389886dd229d5162f220b1f39e30447401767be1931bd2?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
+          alt=""
+          className="object-contain w-6 my-auto shrink-0 aspect-square"
+        />
+      </button>
+    </div>
   );
 };
 
-export default MainContent;
+export default SearchBar;

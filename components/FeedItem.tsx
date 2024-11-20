@@ -1,29 +1,30 @@
-"use client";
-
 import React from "react";
-import SearchBar from "./SearchBar";
-import FeedItem from "./FeedItem";
 
-const MainContent: React.FC = () => {
+const FeedItem: React.FC = () => {
   return (
-    <main className="flex flex-col ml-5 w-[43%] max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col w-full mt-24 max-md:mt-10 max-md:max-w-full">
-        <SearchBar />
-        <h1 className="self-start mt-20 text-3xl font-extrabold leading-none text-lime-950 max-md:mt-10">
-          Feed
-        </h1>
-        <FeedItem />
-        <div className="flex flex-col px-7 pt-9 mt-7 bg-white rounded-xl shadow-[0px_4px_15px_rgba(0,0,0,0.1)] max-md:px-5 max-md:max-w-full">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/c62b02c42f7154e78beccf5a6619bd506b35f9172018206688e3729cb94fd0e6?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
-            alt=""
-            className="object-contain aspect-[8.2] w-[509px] max-md:max-w-full"
-          />
+    <article className="flex flex-col items-start px-7 py-8 mt-8 font-medium bg-white rounded-xl shadow-[0px_4px_15px_rgba(0,0,0,0.1)] max-md:px-5 max-md:max-w-full">
+      <div className="flex relative flex-col items-start self-stretch px-12 pt-10 pb-96 text-xs text-green-500 min-h-[462px] max-md:px-5 max-md:pb-24 max-md:max-w-full">
+        <img
+          loading="lazy"
+          src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/c18aae915cb9a7a7868e1164f70688a1edf0ebf8076f29cf463407d933cdfd77?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
+          alt="Event image"
+          className="absolute inset-0 object-cover size-full"
+        />
+        <div className="relative px-0.5 py-1.5 mb-0 max-w-full bg-white w-[159px] max-md:pr-5 max-md:mb-2.5">
+          Just now
         </div>
       </div>
-    </main>
+      <img
+        loading="lazy"
+        src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/b16cd341af417ddac6dabec07e0e75b53552b1a581d88afe1378016677d5695c?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
+        alt="Event rating"
+        className="object-contain mt-1.5 w-24 aspect-[3.1]"
+      />
+      <div className="mt-4 text-xs text-black">
+        Marjorie Polistico and 897+ others are attending
+      </div>
+    </article>
   );
 };
 
-export default MainContent;
+export default FeedItem;
