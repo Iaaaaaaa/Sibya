@@ -81,6 +81,7 @@ export async function POST(
 
     const title = formData.get("title") as string; // Changed field name
     const description = formData.get("description") as string; // Changed field name
+    const department = formData.get("department") as string; // Changed field name
     const image = formData.get("image") as File | null;
     const date = formData.get("date") as string; // User-provided date (e.g., '2024-11-22')
     const time = formData.get("time") as string; // User-provided time (e.g., '12:43')
@@ -90,6 +91,7 @@ export async function POST(
       console.error("Missing required fields:", {
         title: !title,
         description: !description,
+        department: !department,
         date: !date,
         time: !time,
       });
@@ -141,6 +143,7 @@ export async function POST(
       page: currentPage._id, // Associate the post with the current page
       title, // Changed field name
       description, // Changed field name
+      department,
       image: imageUrl, // Save the file URL
       date: eventDate, // Save the combined date and time
     });

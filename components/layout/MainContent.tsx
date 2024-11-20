@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import SearchBar from "../SearchBar";
-import FeedItem from "../FeedItem";
+
 import PageView from "../../app/(root)/pages/[pageId]/page"; // Import the PageView component
-import { PlusCircle } from "lucide-react";
-import { Button } from "../ui/button";
 
 const MainContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();

@@ -39,7 +39,6 @@ export const GET = async (
     console.log("Found events:", events);
 
     if (!events || events.length === 0) {
-      return new NextResponse("No events found for this page", { status: 404 });
     }
 
     return NextResponse.json(events, { status: 200 });

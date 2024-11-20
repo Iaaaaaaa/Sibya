@@ -5,6 +5,7 @@ const EventSchema = new Schema(
   {
     title: { type: String, required: true }, // Changed field name
     description: { type: String, required: true }, // Changed field name
+    department: { type: String, required: true }, // Changed field name
     image: { type: String, default: "" }, // Optional image for the post
     creator: { type: String, required: true }, // The user who created the post
     page: { type: mongoose.Schema.Types.ObjectId, ref: "Page", required: true }, // Reference to the Page model

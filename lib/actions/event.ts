@@ -7,6 +7,7 @@ interface CreateEventParams {
   pageId: string; // ID of the page the post will belong to
   title: string; // Changed field name
   description: string; // Changed field name
+  department: string;
   image?: string; // Optional image for the post
   date: string; // The user-provided date (e.g., '2024-11-22')
   time: string; // The user-provided time (e.g., '12:43')
@@ -17,6 +18,7 @@ export const createPost = async ({
   pageId,
   title,
   description,
+  department,
   image = "", // Default value for image
   date, // User-provided date (e.g., '2024-11-22')
   time, // User-provided time (e.g., '12:43')
@@ -26,7 +28,15 @@ export const createPost = async ({
     await connectToDB();
 
     // Validate required fields
-    if (!creatorId || !pageId || !title || !description || !date || !time) {
+    if (
+      !creatorId ||
+      !pageId ||
+      !title ||
+      !description ||
+      !department ||
+      !date ||
+      !time
+    ) {
       throw new Error(
         "Missing required fields: creatorId, pageId, Title, Description, date, or time."
       );
@@ -42,6 +52,7 @@ export const createPost = async ({
       page: pageId, // The post is associated with the page
       title,
       description,
+      department,
       image,
       date: postDate, // Save the combined date and time
     });

@@ -8,7 +8,7 @@ export const GET = async (req: Request): Promise<Response> => {
     // Connect to the database
     await connectToDB();
 
-    // Fetch all posts and populate related fields (if needed)
+    // Fetch all events and populate related fields (if needed)
     const events = await Event.find()
       .populate<{ page: Types.ObjectId | null }>("page") // You can populate more fields if needed
       .exec();

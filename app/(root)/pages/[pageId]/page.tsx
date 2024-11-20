@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import {
   Card,
   CardContent,
@@ -19,6 +20,7 @@ import {
   MessageCircle,
   Share2,
   MoreHorizontal,
+  X,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -33,6 +35,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface Page {
   _id: string;
@@ -53,11 +63,15 @@ interface Event {
   time: string;
   department: string;
   image: string | null;
+  page: {
+    name: string;
+    profilePhoto: string | null;
+  };
 }
 
 export default function PageView() {
   const [page, setPage] = useState<Page | null>(null);
-  const [events, setEvent] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState<string>("");
@@ -69,6 +83,7 @@ export default function PageView() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const { pageId } = useParams();
+  const { user } = useUser();
 
   useEffect(() => {
     if (pageId) {
@@ -92,15 +107,14 @@ export default function PageView() {
         try {
           const response = await fetch(`/api/pages/${pageId}/page-events`);
           if (!response.ok) {
-            throw new Error("Failed to fetch posts");
+            throw new Error("Failed to fetch events");
           }
           const data = await response.json();
           if (data.length === 0) {
-            setEvent([]);
-            setError("No posts available for this page.");
+            setEvents([]);
           } else {
-            setEvent(data);
-            setError(null); // Clear any previous error
+            setEvents(data);
+            setError(null);
           }
         } catch (error) {}
       };
@@ -128,13 +142,13 @@ export default function PageView() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create post");
+        throw new Error("Failed to create event");
       }
 
       const newEvent = await response.json();
-      console.log("Post created:", newEvent);
+      console.log("Event created:", newEvent);
 
-      setEvent((prevEvent) => [newEvent, ...prevEvent]);
+      setEvents((prevEvents) => [newEvent, ...prevEvents]);
 
       setTitle("");
       setDescription("");
@@ -144,8 +158,8 @@ export default function PageView() {
       setImage(null);
       setIsModalOpen(false);
     } catch (error) {
-      console.error("Error creating post:", error);
-      setError("Failed to create post.");
+      console.error("Error creating event:", error);
+      setError("Failed to create event.");
     }
   };
 
@@ -190,6 +204,8 @@ export default function PageView() {
     );
   }
 
+  const isPageCreator = user && user.id === page.creator;
+
   return (
     <div className="container mx-auto p-4 space-y-8">
       <Card>
@@ -220,8 +236,7 @@ export default function PageView() {
               <AvatarFallback>{page.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-2xl font-semibold">{page.creator}</h2>
-              <p className="text-muted-foreground">{page.createdBy}</p>
+              <h2 className="text-2xl font-semibold">{page.name}</h2>
             </div>
           </div>
           <div className="prose max-w-none">
@@ -233,122 +248,169 @@ export default function PageView() {
 
       <div className="flex justify-between items-center">
         <h3 className="text-2xl font-semibold">Events</h3>
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Create Event
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Create Post</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handlePostSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+        {isPageCreator && (
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" /> Create Event
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create Event</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handlePostSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
+                  <Label htmlFor="title">Title</Label>
                   <Input
-                    type="date"
-                    id="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="time">Time</Label>
-                  <Input
-                    type="time"
-                    id="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                     required
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
-                  id="department"
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="image">Image</Label>
-                <Input
-                  type="file"
-                  id="image"
-                  onChange={(e) => setImage(e.target.files?.[0] || null)}
-                />
-              </div>
-              <DialogFooter>
-                <Button type="submit">Create</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="date">Date</Label>
+                    <Input
+                      type="date"
+                      id="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="time">Time</Label>
+                    <Input
+                      type="time"
+                      id="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Select onValueChange={setDepartment} value={department}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CCIS">CCIS</SelectItem>
+                      <SelectItem value="CHASS">CHASS</SelectItem>
+                      <SelectItem value="CED">CED</SelectItem>
+                      <SelectItem value="CMNS">CMNS</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="image">Image</Label>
+                  <Input
+                    type="file"
+                    id="image"
+                    onChange={(e) => setImage(e.target.files?.[0] || null)}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button type="submit">Create</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
-      {events.length > 0 ? (
-        <div className="space-y-6">
-          {events.map((event) => (
-            <Card key={event._id}>
-              <CardHeader>
-                <CardTitle>{event.title}</CardTitle>
-                <CardDescription>{event.date}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p>{event.description}</p>
-                {event.image && (
-                  <img
-                    src={event.image}
-                    alt="Event image"
-                    className="mt-4 w-full h-auto object-cover rounded-md"
-                  />
-                )}
-              </CardContent>
-              <CardFooter>
-                <div className="flex space-x-4">
-                  <Button variant="link" size="icon">
-                    <ThumbsUp className="h-4 w-4" />
+      <div className="space-y-8">
+        {events.length > 0 ? (
+          events.map((event) => (
+            <div key={event._id} className="container mx-auto py-8">
+              <Card className="w-full max-w-2xl mx-auto">
+                <CardHeader className="flex flex-row items-center space-x-4">
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage
+                      src={page.profilePhoto || "/default-avatar.png"}
+                      alt={page.name || "Unknown"}
+                    />
+                    <AvatarFallback>
+                      {page.name ? page.name[0]?.toUpperCase() : "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{page.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(event.date).toLocaleString()}
+                    </p>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <h4 className="text-xl font-semibold">{event.title}</h4>
+                  <p className="text-muted-foreground">{event.description}</p>
+                  {event.image && (
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="cursor-pointer">
+                          <img
+                            src={event.image}
+                            alt="Event Image"
+                            className="w-full h-auto rounded-md object-cover max-h-96"
+                          />
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl w-full h-full flex items-center justify-center">
+                        <DialogTitle>
+                          <VisuallyHidden>Event Image</VisuallyHidden>
+                        </DialogTitle>
+                        <Button
+                          className="absolute top-2 right-2 rounded-full p-2"
+                          variant="ghost"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        <img
+                          src={event.image}
+                          alt="Full size event image"
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </CardContent>
+                <CardFooter className="flex justify-between border-t pt-4">
+                  <Button variant="ghost" size="sm">
+                    <ThumbsUp className="mr-2 h-4 w-4" />
+                    Like
                   </Button>
-                  <Button variant="link" size="icon">
-                    <MessageCircle className="h-4 w-4" />
+                  <Button variant="ghost" size="sm">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Comment
                   </Button>
-                  <Button variant="link" size="icon">
-                    <Share2 className="h-4 w-4" />
+                  <Button variant="ghost" size="sm">
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share
                   </Button>
-                  <Button variant="link" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <p>No posts available.</p>
-      )}
+                </CardFooter>
+              </Card>
+            </div>
+          ))
+        ) : (
+          <div className="container mx-auto py-8">
+            <p className="text-center text-muted-foreground">
+              No events found.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

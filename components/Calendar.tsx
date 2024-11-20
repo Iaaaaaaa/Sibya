@@ -1,62 +1,133 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+interface Event {
+  _id: string;
+  title: string;
+  date: string; // Should be in ISO format
+  department: string;
+}
+
+const departmentColors: Record<string, string> = {
+  CCIS: "bg-green-500",
+  CHASS: "bg-blue-500",
+  CED: "bg-yellow-500",
+  CMNS: "bg-red-500",
+};
 
 const Calendar: React.FC = () => {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const dates = Array.from({ length: 31 }, (_, i) => i + 1);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("/api/events");
+        if (!response.ok) {
+          throw new Error("Failed to fetch events");
+        }
+        const data: Event[] = await response.json();
+        setEvents(data);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "An unexpected error occurred"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // Group events by date
+  const eventsByDate = events.reduce((acc, event) => {
+    const date = new Date(event.date);
+    date.setDate(date.getDate() - 1); // Adjust date by subtracting 1 day
+    const dateString = date.toISOString().split("T")[0];
+    if (!acc[dateString]) {
+      acc[dateString] = {};
+    }
+    if (!acc[dateString][event.department]) {
+      acc[dateString][event.department] = [];
+    }
+    acc[dateString][event.department].push(event);
+    return acc;
+  }, {} as Record<string, Record<string, Event[]>>);
+
+  const getDayBackgroundColor = (day: Date): string => {
+    const dateString = day.toISOString().split("T")[0];
+    const eventsForDay = eventsByDate[dateString];
+
+    if (!eventsForDay) return "bg-white"; // Default background for no events
+
+    const primaryDepartment = Object.keys(eventsForDay)[0];
+    return departmentColors[primaryDepartment] || "bg-gray-300";
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Events Calendar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-[350px] w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Events Calendar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-red-500 py-5">Error: {error}</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <section className="flex flex-col px-14 py-10 mt-7 w-full text-base bg-white rounded-xl shadow-[0px_4px_15px_rgba(0,0,0,0.1)] max-md:px-5 max-md:mr-2 max-md:max-w-full">
-      <div className="flex gap-10 items-center self-center max-w-full text-xl font-medium text-zinc-800 w-[277px]">
-        <button aria-label="Previous month">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/8bfe3a00ec32bc2799fac66dedddf3668bdd39c5460ecf477a963405a8ab97bf?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
-            alt=""
-            className="object-contain shrink-0 self-stretch my-auto aspect-[0.65] w-[11px]"
-          />
-        </button>
-        <div className="grow shrink self-stretch w-[158px]">December 2024</div>
-        <button aria-label="Next month">
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/d0fc01ff1c8a06bb633d7620ee897c73b06dadac3436dd54a53121400a65c6bd?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"
-            alt=""
-            className="object-contain shrink-0 self-stretch my-auto w-2.5 aspect-[0.59]"
-          />
-        </button>
-      </div>
-      Continuing from where we left off:
-      <div className="flex gap-4 mt-8 whitespace-nowrap text-zinc-800 max-md:mr-0.5">
-        {days.map((day, index) => (
-          <div key={index} className="grow">
-            {day}
-          </div>
-        ))}
-      </div>
-      <div className="grid grid-cols-7 gap-2 mt-4">
-        {dates.map((date, index) => {
-          let className =
-            "flex items-center justify-center h-[35px] w-[35px] uppercase";
-          if (date === 7) className += " text-white bg-green-300 rounded-full";
-          if (date === 11) className += " text-white bg-green-300 rounded-full";
-          if (date === 20) className += " text-white bg-lime-700 rounded-full";
-          if (date === 21) className += " text-white bg-red-700 rounded-full";
-          if (date === 22)
-            className += " text-white bg-yellow-400 rounded-full";
-          if (date === 24 || date === 25)
-            className += " text-white bg-green-300 rounded-full";
-          if (date === 31) className += " text-white bg-green-300 rounded-full";
-
-          return (
-            <div key={index} className={className}>
-              {date}
+    <Card>
+      <CardContent>
+        <CalendarComponent
+          mode="single"
+          className="rounded-md mt-2 w-full"
+          components={{
+            DayContent: (props) => (
+              <div
+                className={cn(
+                  "relative flex items-center justify-center w-full h-full rounded-md",
+                  getDayBackgroundColor(props.date)
+                )}
+              >
+                <span className="flex items-center justify-center w-8 h-8 text-sm">
+                  {props.date.getDate()}
+                </span>
+              </div>
+            ),
+          }}
+        />
+        <div className="mt-4 flex flex-wrap gap-4">
+          {Object.entries(departmentColors).map(([department, color]) => (
+            <div key={department} className="flex items-center">
+              <div className={cn("w-3 h-3 rounded-full mr-2", color)} />
+              <span className="text-sm">{department}</span>
             </div>
-          );
-        })}
-      </div>
-    </section>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

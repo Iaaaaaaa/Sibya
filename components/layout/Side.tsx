@@ -7,6 +7,15 @@ import { useRouter } from "next/navigation";
 
 export default function Sidebar() {
   const router = useRouter();
+
+  const handleClick = async () => {
+    // Navigate to the root path or the desired destination
+    await router.push("/"); // Adjust the path if needed
+
+    // Reload the page once the navigation is complete
+    window.location.assign("/");
+  };
+
   return (
     <aside className="fixed top-0 left-0 z-40 hidden w-80 h-full bg-white shadow-md lg:block">
       <nav className="p-4">
@@ -19,10 +28,8 @@ export default function Sidebar() {
           {/* News Feed Button */}
           <li>
             <button
-              className="flex justify-center w-full p-3 text-gray-700 rounded
-              hover:bg-[#CCECCC] focus:outline-none"
-              type="button"
-              onClick={() => router.push("/")}
+              className="flex justify-center w-full p-3 text-gray-700 rounded hover:bg-[#CCECCC] focus:outline-none"
+              onClick={handleClick}
             >
               <img
                 src="https://cdn.builder.io/api/v1/image/assets/69d26e7d3134467f9c216eb5f38b89f7/1cf0f32e184318d171aa267e2584cde40e92d4cbce73bfd82cc19ea5f49841c3?apiKey=69d26e7d3134467f9c216eb5f38b89f7&"

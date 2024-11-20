@@ -154,69 +154,73 @@ export default function PageDirectory() {
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold"></h1>
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="w-4 h-4 mr-2" /> Create Page
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create a New Page</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="name">Page Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  value={form.description}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="profilePhoto">Profile Photo</Label>
-                <Input
-                  id="profilePhoto"
-                  name="profilePhoto"
-                  type="file"
-                  onChange={(e) => handleFileChange(e, "profilePhoto")}
-                />
-              </div>
-              <div>
-                <Label htmlFor="coverPhoto">Cover Photo</Label>
-                <Input
-                  id="coverPhoto"
-                  name="coverPhoto"
-                  type="file"
-                  onChange={(e) => handleFileChange(e, "coverPhoto")}
-                />
-              </div>
-              <div>
-                <Label htmlFor="department">Department (optional)</Label>
-                <Input
-                  id="department"
-                  name="department"
-                  value={form.department}
-                  onChange={handleChange}
-                />
-              </div>
-              <Button type="submit">Create Page</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <div className="space-x-4">
+          <Link className="ml-3" href="/yourpages" passHref>
+            <Button variant="outline"> Your Pages</Button>
+          </Link>
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="justify-end">
+                <PlusCircle className="w-4 h-4 mr-2" /> Create Page
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create a New Page</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Page Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="profilePhoto">Profile Photo</Label>
+                  <Input
+                    id="profilePhoto"
+                    name="profilePhoto"
+                    type="file"
+                    onChange={(e) => handleFileChange(e, "profilePhoto")}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="coverPhoto">Cover Photo</Label>
+                  <Input
+                    id="coverPhoto"
+                    name="coverPhoto"
+                    type="file"
+                    onChange={(e) => handleFileChange(e, "coverPhoto")}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="department">Department (optional)</Label>
+                  <Input
+                    id="department"
+                    name="department"
+                    value={form.department}
+                    onChange={handleChange}
+                  />
+                </div>
+                <Button type="submit">Create Page</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
       {pages.length > 0 ? (
         <div className="space-y-6">
