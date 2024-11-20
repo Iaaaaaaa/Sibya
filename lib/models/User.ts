@@ -6,6 +6,10 @@ const UserSchema = new Schema({
   lastName: { type: String, required: true },
   profilePhoto: { type: String },
   email: { type: String, required: true, unique: true },
+  likedEvents: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Event" }],
+    default: [],
+  },
   role: { type: String, enum: ["Admin", "User"], default: "User" },
 });
 

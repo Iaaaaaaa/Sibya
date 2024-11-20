@@ -49,7 +49,7 @@ const Calendar: React.FC = () => {
   // Group events by date
   const eventsByDate = events.reduce((acc, event) => {
     const date = new Date(event.date);
-    date.setDate(date.getDate() - 1); // Adjust date by subtracting 1 day
+    date.setDate(date.getDate()); // Adjust date by subtracting 1 day
     const dateString = date.toISOString().split("T")[0];
     if (!acc[dateString]) {
       acc[dateString] = {};

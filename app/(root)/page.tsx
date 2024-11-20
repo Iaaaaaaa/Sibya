@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,27 +14,52 @@ import {
   DialogContent,
   DialogTrigger,
   DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { ThumbsUp, MessageCircle, Share2, X } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useUser } from "@clerk/nextjs";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Event {
   _id: string;
   title: string;
   description: string;
+  department: string;
   image?: string;
   date: string;
+  likes: string[];
   page: {
     _id: string;
     name: string;
     profilePhoto: string;
   };
+  comments: Comment[];
+}
+
+interface Comment {
+  _id: string;
+  text: string;
+  commenter: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profilePhoto: string;
+  };
+  createdAt: string;
 }
 
 export default function PostDirectory() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useUser();
+  const [newComment, setNewComment] = useState<string>("");
+  const [commentingEventId, setCommentingEventId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -45,11 +69,31 @@ export default function PostDirectory() {
           throw new Error("Failed to fetch events");
         }
         const data: Event[] = await response.json();
-        setEvents(data.filter((event) => event.page)); // Filter out posts without a page
+        setEvents(data.filter((event) => event.page));
+
+        // Fetch comments for each event
+        const eventsWithComments = await Promise.all(
+          data.map(async (event) => {
+            const commentsResponse = await fetch(
+              `/api/events/${event._id}/comments`
+            );
+            if (commentsResponse.ok) {
+              const comments = await commentsResponse.json();
+              return { ...event, comments };
+            }
+            return event;
+          })
+        );
+        setEvents(eventsWithComments.filter((event) => event.page));
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "An unexpected error occurred"
         );
+        toast({
+          title: "Error",
+          description: "Failed to load events. Please try again later.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
@@ -58,9 +102,133 @@ export default function PostDirectory() {
     fetchEvents();
   }, []);
 
+  const handleLikeUnlike = async (eventId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to like events.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const userId = user.id;
+    const event = events.find((e) => e._id === eventId);
+    const isLiked = event?.likes.includes(userId);
+
+    try {
+      const response = await fetch(
+        `/api/events/${eventId}/${isLiked ? "unlike" : "like"}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${isLiked ? "unlike" : "like"} event`);
+      }
+
+      const { likes } = await response.json();
+
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event._id === eventId ? { ...event, likes } : event
+        )
+      );
+
+      toast({
+        title: isLiked ? "Event Unliked" : "Event Liked",
+        description: isLiked
+          ? "You have unliked this event."
+          : "You have liked this event.",
+      });
+    } catch (err) {
+      console.error(`Error ${isLiked ? "unliking" : "liking"} event:`, err);
+      toast({
+        title: "Error",
+        description: `Failed to ${
+          isLiked ? "unlike" : "like"
+        } event. Please try again.`,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCommentSubmit = async (eventId: string) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to comment.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newComment.trim()) {
+      toast({
+        title: "Empty Comment",
+        description: "Please enter a comment before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/events/${eventId}/comments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: newComment,
+          userId: user.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit comment");
+      }
+
+      const newCommentData: Comment = await response.json();
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event._id === eventId
+            ? {
+                ...event,
+                comments: [newCommentData, ...(event.comments || [])],
+              }
+            : event
+        )
+      );
+      setNewComment("");
+      setCommentingEventId(null);
+      toast({
+        title: "Comment Posted",
+        description: "Your comment has been successfully posted.",
+      });
+    } catch (err) {
+      console.error("Error submitting comment:", err);
+      toast({
+        title: "Error",
+        description: "Failed to post comment. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isEventLiked = (event: Event) => {
+    return user && event.likes.includes(user.id);
+  };
+
   if (loading) {
     return (
-      <div className="container mx-auto py-8 text-center">Loading ...</div>
+      <div className="container mx-auto py-8 text-center">
+        Loading events...
+      </div>
     );
   }
 
@@ -81,14 +249,16 @@ export default function PostDirectory() {
               <CardHeader className="flex flex-row items-center space-x-4">
                 <Avatar className="w-12 h-12">
                   <AvatarImage
-                    src={event.page?.profilePhoto || "/default-avatar.png"}
+                    src={
+                      event.page?.profilePhoto ||
+                      "/placeholder.svg?height=48&width=48"
+                    }
                     alt={event.page?.name || "Unknown"}
                   />
                   <AvatarFallback>
                     {event.page?.name ? event.page.name[0]?.toUpperCase() : "?"}
                   </AvatarFallback>
                 </Avatar>
-
                 <div>
                   <p className="text-sm font-medium">{event.page.name}</p>
                   <p className="text-xs text-muted-foreground">
@@ -99,49 +269,117 @@ export default function PostDirectory() {
               <CardContent className="space-y-4">
                 <h4 className="text-xl font-semibold">{event.title}</h4>
                 <p className="text-muted-foreground">{event.description}</p>
+                <p className="text-sm text-muted-foreground">
+                  Department: {event.department}
+                </p>
                 {event.image && (
                   <Dialog>
                     <DialogTrigger asChild>
                       <div className="cursor-pointer">
                         <img
                           src={event.image}
-                          alt="Post Image"
+                          alt="Event Image"
                           className="w-full h-auto rounded-md object-cover max-h-96"
                         />
                       </div>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl w-full h-full flex items-center justify-center">
                       <DialogTitle>
-                        <VisuallyHidden>Post Image</VisuallyHidden>
+                        <VisuallyHidden>Event Image</VisuallyHidden>
                       </DialogTitle>
-                      <Button
-                        className="absolute top-2 right-2 rounded-full p-2"
-                        variant="ghost"
-                      >
+                      <DialogClose className="absolute top-2 right-2 rounded-full p-2">
                         <X className="h-4 w-4" />
-                      </Button>
+                      </DialogClose>
                       <img
                         src={event.image}
-                        alt="Full size post image"
+                        alt="Full size event image"
                         className="max-w-full max-h-full object-contain"
                       />
                     </DialogContent>
                   </Dialog>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-between border-t pt-4">
-                <Button variant="ghost" size="sm">
-                  <ThumbsUp className="mr-2 h-4 w-4" />
-                  Like
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Comment
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Share
-                </Button>
+              <CardFooter className="flex flex-col items-start border-t pt-4">
+                <div className="flex justify-between w-full mb-4">
+                  <Button
+                    variant={isEventLiked(event) ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => handleLikeUnlike(event._id)}
+                    className={
+                      isEventLiked(event)
+                        ? "bg-blue-100 hover:bg-blue-200 text-blue-600"
+                        : ""
+                    }
+                  >
+                    <ThumbsUp
+                      className={`mr-2 h-4 w-4 ${
+                        isEventLiked(event) ? "fill-current text-blue-600" : ""
+                      }`}
+                    />
+                    {isEventLiked(event) ? "Unlike" : "Like"} (
+                    {event.likes.length})
+                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MessageCircle className="mr-2 h-4 w-4" />
+                        Comment ({event.comments?.length || 0})
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[425px]">
+                      <DialogTitle>Comments</DialogTitle>
+                      <ScrollArea className="h-[300px] pr-4">
+                        {event.comments?.map((comment) => (
+                          <div
+                            key={comment._id}
+                            className="flex items-start space-x-4 mb-4"
+                          >
+                            <Avatar className="w-8 h-8">
+                              <AvatarImage
+                                src={
+                                  comment.commenter.profilePhoto ||
+                                  "/placeholder.svg?height=32&width=32"
+                                }
+                                alt={`${comment.commenter.firstName} ${comment.commenter.lastName}`}
+                              />
+                              <AvatarFallback>
+                                {comment.commenter.firstName[0]}
+                                {comment.commenter.lastName[0]}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-sm font-medium">
+                                {comment.commenter.firstName}{" "}
+                                {comment.commenter.lastName}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {comment.text}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(comment.createdAt).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </ScrollArea>
+                      <div className="mt-4">
+                        <Textarea
+                          placeholder="Write a comment..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          className="w-full mb-2"
+                        />
+                        <Button onClick={() => handleCommentSubmit(event._id)}>
+                          Submit Comment
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Button variant="ghost" size="sm">
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Share
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           </div>

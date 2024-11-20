@@ -39,7 +39,9 @@
     "middleware.js",
     "lib/actions/user.ts",
     "app/api/webhooks/route.jse.js",
-    "middleware.js"
+    "middleware.js",
+    "lib/models/User.js",
+    "app/scripts/UpdateUsers.js"
   ],
   "exclude": ["node_modules"]
 }
