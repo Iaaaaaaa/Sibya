@@ -6,10 +6,11 @@ import { Types } from "mongoose";
 
 export const GET = async (
   req: Request,
-  context: { params: { pageId: string } }
+  context: { params: Promise<{ pageId: string }> } // Await params as a Promise
 ): Promise<Response> => {
   try {
-    const { pageId } = context.params;
+    // Await context.params before destructuring
+    const { pageId } = await context.params;
 
     // Debug: Log the pageId
     console.log("Requested pageId:", pageId);
@@ -39,6 +40,7 @@ export const GET = async (
     console.log("Found events:", events);
 
     if (!events || events.length === 0) {
+      return new NextResponse("No events found", { status: 404 });
     }
 
     return NextResponse.json(events, { status: 200 });

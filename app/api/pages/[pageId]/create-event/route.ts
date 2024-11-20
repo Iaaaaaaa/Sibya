@@ -60,46 +60,34 @@ const saveFile = async (
   }
 };
 
-export async function POST(
+export const POST = async (
   req: Request,
-  { params }: { params: { pageId: string } }
-) {
+  context: { params: Promise<{ pageId: string }> } // Adjusted type to expect a Promise for params
+): Promise<Response> => {
   try {
+    // Await params before accessing the pageId
+    const { pageId } = await context.params; // Await params
+
     // Authentication with Clerk
-    const { userId }: { userId: string | null } = await auth();
+    const { userId } = await auth();
     if (!userId) {
-      console.error("Unauthorized access attempt");
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Extract the pageId from the URL parameters (e.g., /create/[pageId]/route.ts)
-    const { pageId } = params;
-
-    // Parse the form data manually
+    // Parse form data
     const formData = await req.formData();
-    console.log("Form Data:", formData);
-
-    const title = formData.get("title") as string; // Changed field name
-    const description = formData.get("description") as string; // Changed field name
-    const department = formData.get("department") as string; // Changed field name
+    const title = formData.get("title") as string | null;
+    const description = formData.get("description") as string | null;
+    const department = formData.get("department") as string | null;
     const image = formData.get("image") as File | null;
-    const date = formData.get("date") as string; // User-provided date (e.g., '2024-11-22')
-    const time = formData.get("time") as string; // User-provided time (e.g., '12:43')
+    const date = formData.get("date") as string | null;
+    const time = formData.get("time") as string | null;
 
-    // Ensure that required fields are present
+    // Validate required fields
     if (!title || !description || !date || !time) {
-      console.error("Missing required fields:", {
-        title: !title,
-        description: !description,
-        department: !department,
-        date: !date,
-        time: !time,
-      });
       return new NextResponse(
-        "Title, Description, date, and time are required",
-        {
-          status: 400,
-        }
+        "Title, Description, Date, and Time are required",
+        { status: 400 }
       );
     }
 
@@ -109,74 +97,40 @@ export async function POST(
     // Convert userId to a valid ObjectId
     const creatorId = generateObjectId(userId);
 
-    // Combine the date and time into a single Date object
-    const dateTimeString = `${date}T${time}:00`; // Format as 'YYYY-MM-DDTHH:mm:ss'
+    // Combine date and time into a single Date object
+    const dateTimeString = `${date}T${time}:00`;
     const eventDate = new Date(dateTimeString);
 
-    // Fetch the page by pageId (ensure that the event is associated with the correct page)
+    // Fetch the page by pageId
     const currentPage = await Page.findById(pageId);
     if (!currentPage) {
-      console.error("Page not found for the given pageId:", pageId);
       return new NextResponse("Page not found", { status: 400 });
     }
 
-    // Save the image (if present)
-    let imageUrl = null;
-    try {
-      imageUrl = await saveFile(image, "postImages");
-    } catch (error) {
-      console.error(
-        "File saving error:",
-        error instanceof Error ? error.message : error
-      );
-      return new NextResponse(
-        error instanceof Error ? error.message : "Error saving file",
-        {
-          status: 400,
-        }
-      );
-    }
+    // Save the image, if present
+    const imageUrl = image ? await saveFile(image, "postImages") : null;
 
-    // Create the post document in MongoDB
+    // Create the event in the database
     const event = await Event.create({
       creator: creatorId,
-      page: currentPage._id, // Associate the post with the current page
-      title, // Changed field name
-      description, // Changed field name
+      page: currentPage._id,
+      title,
+      description,
       department,
-      image: imageUrl, // Save the file URL
-      date: eventDate, // Save the combined date and time
+      image: imageUrl,
+      date: eventDate,
     });
 
-    // Optionally, you can update the page to add the post to the `posts` array
-    const updatedPage = await Page.findByIdAndUpdate(
+    // Update the page with the new event
+    await Page.findByIdAndUpdate(
       pageId,
       { $push: { events: event._id } },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
-    if (!updatedPage) {
-      return new NextResponse("Failed to update the page", { status: 500 });
-    }
-
-    console.log("event created successfully:", event);
     return NextResponse.json(event, { status: 201 });
   } catch (error) {
-    console.error("Error creating event in the database:", error);
-
-    // Type guard to handle unknown error types
-    if (error instanceof Error) {
-      // Log the entire error object for debugging
-      console.error("Error details:", error);
-
-      // Return the full error object (you can stringify it for better readability)
-      return new NextResponse(`Error: ${JSON.stringify(error, null, 2)}`, {
-        status: 400,
-      });
-    }
-
-    // For non-Error objects, handle the generic case
-    console.error("Internal Server Error:", error);
+    console.error("Error creating event:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
-}
+};
