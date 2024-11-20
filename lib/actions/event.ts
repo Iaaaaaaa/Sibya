@@ -1,6 +1,5 @@
-import Post from "@/lib/models/Event";
+import Event from "@/lib/models/Event";
 import { connectToDB } from "../../mongodb/mongoose";
-import Page from "@/lib/models/Page";
 
 interface CreateEventParams {
   creatorId: string; // ID of the user creating the post
@@ -13,7 +12,7 @@ interface CreateEventParams {
   time: string; // The user-provided time (e.g., '12:43')
 }
 
-export const createPost = async ({
+export const createEvent = async ({
   creatorId,
   pageId,
   title,
@@ -44,26 +43,21 @@ export const createPost = async ({
 
     // Combine the date and time into a single Date object
     const dateTimeString = `${date}T${time}:00`; // Format as 'YYYY-MM-DDTHH:mm:ss'
-    const postDate = new Date(dateTimeString);
+    const eventDate = new Date(dateTimeString);
 
     // Create a new post with the combined date and time
-    const newEvent = new Post({
+    const newEvent = new Event({
       creator: creatorId,
       page: pageId, // The post is associated with the page
       title,
       description,
       department,
       image,
-      date: postDate, // Save the combined date and time
+      date: eventDate, // Save the combined date and time
     });
 
     // Save the post to the database
     const savedEvent = await newEvent.save();
-
-    // Optionally, you can update the page to add the post to the `posts` array
-    await Page.findByIdAndUpdate(pageId, {
-      $push: { posts: savedEvent._id },
-    });
 
     return savedEvent;
   } catch (error) {

@@ -102,7 +102,7 @@ const Calendar: React.FC = () => {
       <CardContent>
         <CalendarComponent
           mode="single"
-          className="rounded-md mt-2 w-full"
+          className="rounded-md w-full"
           components={{
             DayContent: (props) => (
               <div
