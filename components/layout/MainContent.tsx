@@ -10,6 +10,7 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const [isPageDirectory, setIsPageDirectory] = useState(false);
   const [isPosts, setIsPosts] = useState(false);
+  const [isYourPages, setIsYourPages] = useState(false);
   const [isPageView, setIsPageView] = useState(false);
   const router = useRouter();
 
@@ -17,11 +18,14 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
     // Check if the current route is '/pages'
     setIsPageDirectory(pathname === "/pages");
     setIsPosts(pathname === "/");
+    setIsYourPages(pathname === "/yourpages");
 
     // Check if the pathname matches a specific page (e.g., '/pages/[pageId]')
     if (pathname.includes("/pages/")) {
       setIsPageView(true);
     } else if (pathname === "/") {
+      setIsPosts(true);
+    } else if (pathname === "/yourpages") {
       setIsPosts(true);
     } else {
       setIsPageView(false);
@@ -40,6 +44,8 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
             ? "Page View"
             : isPosts
             ? "Feed"
+            : isYourPages
+            ? "Your Page/s"
             : "No Content"}
         </h1>
         <div className="flex flex-col mt-7 bg-grey-500 rounded-xl shadow-[0px_4px_15px_rgba(0,0,0,0.1)]  max-md:max-w-full ">

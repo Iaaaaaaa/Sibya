@@ -21,6 +21,8 @@ import {
   Share2,
   MoreHorizontal,
   X,
+  Edit,
+  Trash,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -43,6 +45,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Page {
   _id: string;
@@ -81,6 +99,8 @@ export default function PageView() {
   const [department, setDepartment] = useState<string>("");
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
   const { pageId } = useParams();
   const { user } = useUser();
@@ -160,6 +180,38 @@ export default function PageView() {
     } catch (error) {
       console.error("Error creating event:", error);
       setError("Failed to create event.");
+    }
+  };
+
+  const handleEditEvent = (eventId: string) => {
+    // Implement edit functionality
+    console.log("Edit event:", eventId);
+    // You can open a modal or navigate to an edit page here
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!eventToDelete) return;
+
+    try {
+      const response = await fetch(
+        `/api/pages/${pageId}/events/${eventToDelete}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete event");
+      }
+
+      setEvents((prevEvents) =>
+        prevEvents.filter((event) => event._id !== eventToDelete)
+      );
+      setEventToDelete(null);
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      setError("Failed to delete event.");
     }
   };
 
@@ -336,22 +388,50 @@ export default function PageView() {
           events.map((event) => (
             <div key={event._id} className="container mx-auto py-8">
               <Card className="w-full max-w-2xl mx-auto">
-                <CardHeader className="flex flex-row items-center space-x-4">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage
-                      src={page.profilePhoto || "/default-avatar.png"}
-                      alt={page.name || "Unknown"}
-                    />
-                    <AvatarFallback>
-                      {page.name ? page.name[0]?.toUpperCase() : "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">{page.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(event.date).toLocaleString()}
-                    </p>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage
+                        src={page.profilePhoto || "/default-avatar.png"}
+                        alt={page.name || "Unknown"}
+                      />
+                      <AvatarFallback>
+                        {page.name ? page.name[0]?.toUpperCase() : "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-medium">{page.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(event.date).toLocaleString()}
+                      </p>
+                    </div>
                   </div>
+                  {isPageCreator && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleEditEvent(event._id)}
+                        >
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEventToDelete(event._id);
+                            setIsDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <h4 className="text-xl font-semibold">{event.title}</h4>
@@ -411,6 +491,29 @@ export default function PageView() {
           </div>
         )}
       </div>
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Are you sure you want to delete this event?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              event.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteEvent}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
