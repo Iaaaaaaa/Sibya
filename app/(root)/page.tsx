@@ -22,7 +22,6 @@ import { useUser } from "@clerk/nextjs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import Link from "next/link";
 
 interface Event {
   _id: string;
@@ -339,15 +338,7 @@ export default function PostDirectory() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() =>
-                      user
-                        ? handleLikeUnlike(event._id)
-                        : toast({
-                            title: "Authentication Required",
-                            description: "Please sign in to like events.",
-                            variant: "destructive",
-                          })
-                    }
+                    onClick={() => handleLikeUnlike(event._id)}
                     className={
                       isEventLiked(event)
                         ? "bg-blue-500 hover:bg-blue-600 text-white"
@@ -380,55 +371,42 @@ export default function PostDirectory() {
                             <Avatar className="w-8 h-8">
                               <AvatarImage
                                 src={
-                                  comment.commenter.profilePhoto ||
+                                  comment.commenter?.profilePhoto ||
                                   "/placeholder.svg?height=32&width=32"
                                 }
-                                alt={`${comment.commenter.firstName} ${comment.commenter.lastName}`}
+                                alt={`${comment.commenter?.firstName} ${comment.commenter?.lastName}`}
                               />
                               <AvatarFallback>
-                                {comment.commenter.firstName[0]}
-                                {comment.commenter.lastName[0]}
+                                {comment.commenter?.firstName[0]}
+                                {comment.commenter?.lastName[0]}
                               </AvatarFallback>
                             </Avatar>
                             <div>
                               <p className="text-sm font-medium">
-                                {comment.commenter.firstName}{" "}
-                                {comment.commenter.lastName}
+                                {comment.commenter?.firstName}{" "}
+                                {comment.commenter?.lastName}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {comment.text}
+                                {comment?.text}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(comment.createdAt).toLocaleString()}
+                                {new Date(comment?.createdAt).toLocaleString()}
                               </p>
                             </div>
                           </div>
                         ))}
                       </ScrollArea>
-                      {user ? (
-                        <div className="mt-4">
-                          <Textarea
-                            placeholder="Write a comment..."
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            className="w-full mb-2"
-                          />
-                          <Button
-                            onClick={() => handleCommentSubmit(event._id)}
-                          >
-                            Submit Comment
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="mt-4">
-                          <p className="text-sm text-muted-foreground mb-2">
-                            Please sign in to comment.
-                          </p>
-                          <Link href="/sign-in">
-                            <Button>Sign In</Button>
-                          </Link>
-                        </div>
-                      )}
+                      <div className="mt-4">
+                        <Textarea
+                          placeholder="Write a comment..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          className="w-full mb-2"
+                        />
+                        <Button onClick={() => handleCommentSubmit(event._id)}>
+                          Submit Comment
+                        </Button>
+                      </div>
                     </DialogContent>
                   </Dialog>
                   <Button

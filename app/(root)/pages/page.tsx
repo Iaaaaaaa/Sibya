@@ -20,14 +20,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  PlusCircle,
-  Users,
-  ThumbsUp,
-  MessageCircle,
-  Share2,
-} from "lucide-react";
+import { PlusCircle, Users } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Page {
   _id: string;
@@ -209,12 +210,25 @@ export default function PageDirectory() {
                 </div>
                 <div>
                   <Label htmlFor="department">Department</Label>
-                  <Input
-                    id="department"
+                  <Select
                     name="department"
                     value={form.department}
-                    onChange={handleChange}
-                  />
+                    onValueChange={(value) =>
+                      setForm((prev) => ({ ...prev, department: value }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CCIS">CCIS</SelectItem>
+                      <SelectItem value="CHASS">CHASS</SelectItem>
+                      <SelectItem value="CED">CED</SelectItem>
+                      <SelectItem value="CMNS">CMNS</SelectItem>
+                      <SelectItem value="CEGS">CEGS</SelectItem>
+                      <SelectItem value="COFES">COFES</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button type="submit">Create Page</Button>
               </form>

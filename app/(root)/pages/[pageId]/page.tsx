@@ -286,14 +286,6 @@ export default function PageView() {
   return (
     <div className="container mx-auto p-4 space-y-8">
       <Card>
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold">{page.name}</CardTitle>
-          {page.department && (
-            <CardDescription className="text-lg">
-              {page.department}
-            </CardDescription>
-          )}
-        </CardHeader>
         <CardContent className="space-y-6">
           {page.coverPhoto && (
             <div className="relative h-64 w-full">
@@ -395,6 +387,8 @@ export default function PageView() {
                       <SelectItem value="CHASS">CHASS</SelectItem>
                       <SelectItem value="CED">CED</SelectItem>
                       <SelectItem value="CMNS">CMNS</SelectItem>
+                      <SelectItem value="CEGS">CEGS</SelectItem>
+                      <SelectItem value="COFES">COFES</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

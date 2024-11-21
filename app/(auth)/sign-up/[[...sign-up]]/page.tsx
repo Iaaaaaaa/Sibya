@@ -115,10 +115,7 @@ const SignUpPage: React.FC = () => {
                 </p>
                 <p className="text-sm text-center">
                   or{" "}
-                  <Link
-                    href="/guest"
-                    className="text-green-700 hover:underline"
-                  >
+                  <Link href={"/"} className="text-green-700 hover:underline">
                     Log in as Guest
                   </Link>
                 </p>
