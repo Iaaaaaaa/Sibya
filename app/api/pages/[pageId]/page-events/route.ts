@@ -45,6 +45,7 @@ export const GET = async (
 
     return NextResponse.json(events, { status: 200 });
   } catch (err) {
-    return new NextResponse();
+    console.error("Error fetching events for the page:", err);
+    return new NextResponse("Failed to fetch events", { status: 500 });
   }
 };
