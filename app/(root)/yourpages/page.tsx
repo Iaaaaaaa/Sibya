@@ -56,14 +56,12 @@ export default function YourPages() {
     return <div>Loading pages...</div>;
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between mb-6">
-        <Button variant="outline">Back to Home</Button>
+        <Link href={"/"}>
+          <Button variant="outline">Back to Home</Button>
+        </Link>
       </div>
 
       {pages.length > 0 ? (

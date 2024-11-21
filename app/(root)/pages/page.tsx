@@ -208,7 +208,7 @@ export default function PageDirectory() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="department">Department (optional)</Label>
+                  <Label htmlFor="department">Department</Label>
                   <Input
                     id="department"
                     name="department"

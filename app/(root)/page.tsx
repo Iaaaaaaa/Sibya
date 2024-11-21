@@ -22,6 +22,7 @@ import { useUser } from "@clerk/nextjs";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Link from "next/link";
 
 interface Event {
   _id: string;
@@ -220,8 +221,42 @@ export default function PostDirectory() {
     }
   };
 
+  const handleShare = async (event: Event) => {
+    const shareData = {
+      title: event.title,
+      text: event.description,
+      url: `${window.location.origin}/events/${event._id}`,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast({
+          title: "Shared Successfully",
+          description: "The event has been shared.",
+        });
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        await navigator.clipboard.writeText(
+          `${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`
+        );
+        toast({
+          title: "Link Copied",
+          description: "The event link has been copied to your clipboard.",
+        });
+      }
+    } catch (err) {
+      console.error("Error sharing event:", err);
+      toast({
+        title: "Error",
+        description: "Failed to share the event. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const isEventLiked = (event: Event) => {
-    return user && event.likes.includes(user.id);
+    return user ? event.likes.includes(user.id) : false;
   };
 
   if (loading) {
@@ -302,21 +337,29 @@ export default function PostDirectory() {
               <CardFooter className="flex flex-col items-start border-t pt-4">
                 <div className="flex justify-between w-full mb-4">
                   <Button
-                    variant={isEventLiked(event) ? "default" : "ghost"}
+                    variant="ghost"
                     size="sm"
-                    onClick={() => handleLikeUnlike(event._id)}
+                    onClick={() =>
+                      user
+                        ? handleLikeUnlike(event._id)
+                        : toast({
+                            title: "Authentication Required",
+                            description: "Please sign in to like events.",
+                            variant: "destructive",
+                          })
+                    }
                     className={
                       isEventLiked(event)
-                        ? "bg-blue-100 hover:bg-blue-200 text-blue-600"
-                        : ""
+                        ? "bg-blue-500 hover:bg-blue-600 text-white"
+                        : "hover:bg-gray-100"
                     }
                   >
                     <ThumbsUp
                       className={`mr-2 h-4 w-4 ${
-                        isEventLiked(event) ? "fill-current text-blue-600" : ""
+                        isEventLiked(event) ? "fill-current text-white" : ""
                       }`}
                     />
-                    {isEventLiked(event) ? "Unlike" : "Like"} (
+                    {isEventLiked(event) ? "Liked" : "Like"} (
                     {event.likes.length})
                   </Button>
                   <Dialog>
@@ -362,20 +405,37 @@ export default function PostDirectory() {
                           </div>
                         ))}
                       </ScrollArea>
-                      <div className="mt-4">
-                        <Textarea
-                          placeholder="Write a comment..."
-                          value={newComment}
-                          onChange={(e) => setNewComment(e.target.value)}
-                          className="w-full mb-2"
-                        />
-                        <Button onClick={() => handleCommentSubmit(event._id)}>
-                          Submit Comment
-                        </Button>
-                      </div>
+                      {user ? (
+                        <div className="mt-4">
+                          <Textarea
+                            placeholder="Write a comment..."
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            className="w-full mb-2"
+                          />
+                          <Button
+                            onClick={() => handleCommentSubmit(event._id)}
+                          >
+                            Submit Comment
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="mt-4">
+                          <p className="text-sm text-muted-foreground mb-2">
+                            Please sign in to comment.
+                          </p>
+                          <Link href="/sign-in">
+                            <Button>Sign In</Button>
+                          </Link>
+                        </div>
+                      )}
                     </DialogContent>
                   </Dialog>
-                  <Button variant="ghost" size="sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleShare(event)}
+                  >
                     <Share2 className="mr-2 h-4 w-4" />
                     Share
                   </Button>

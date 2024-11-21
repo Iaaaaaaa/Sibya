@@ -40,7 +40,7 @@ export async function POST(
   try {
     await connectToDB();
 
-    const { eventId } = context.params;
+    const { eventId } = await context.params;
     const { text, userId } = await req.json();
 
     if (!text || !userId) {

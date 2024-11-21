@@ -36,7 +36,11 @@ const MainContent = ({ children }: { children: React.ReactNode }) => {
   return (
     <main className="flex flex-col ml-24 w-[52%] max-md:ml-0 max-md:w-full">
       <div className="flex flex-col w-full h-full mt-24 max-md:mt-10 max-md:max-w-full">
-        <SearchBar />
+        <SearchBar
+          onSearch={function (query: string): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
         <h1 className="self-start text-3xl font-extrabold leading-none text-lime-950 max-md:mt-10">
           {isPageDirectory
             ? "Pages"

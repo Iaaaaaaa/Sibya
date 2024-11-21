@@ -9,16 +9,12 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertCircle,
   Plus,
-  ThumbsUp,
-  MessageCircle,
-  Share2,
   MoreHorizontal,
   X,
   Edit,
@@ -101,48 +97,44 @@ export default function PageView() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
 
   const { pageId } = useParams();
   const { user } = useUser();
 
   useEffect(() => {
     if (pageId) {
-      const fetchPage = async () => {
-        try {
-          const response = await fetch(`/api/pages/${pageId}`);
-          if (!response.ok) {
-            throw new Error("Failed to fetch page data");
-          }
-          const data = await response.json();
-          setPage(data);
-        } catch (error) {
-          setError("An error occurred while fetching the page.");
-          console.error(error);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      const fetchEvents = async () => {
-        try {
-          const response = await fetch(`/api/pages/${pageId}/page-events`);
-          if (!response.ok) {
-            throw new Error("Failed to fetch events");
-          }
-          const data = await response.json();
-          if (data.length === 0) {
-            setEvents([]);
-          } else {
-            setEvents(data);
-            setError(null);
-          }
-        } catch (error) {}
-      };
-
       fetchPage();
       fetchEvents();
     }
   }, [pageId]);
+
+  const fetchPage = async () => {
+    try {
+      const response = await fetch(`/api/pages/${pageId}`);
+      if (!response.ok) {
+      }
+      const data = await response.json();
+      setPage(data);
+    } catch (error) {
+      setError("An error occurred while fetching the page.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch(`/api/pages/${pageId}/page-events`);
+      if (!response.ok) {
+      }
+      const data = await response.json();
+      setEvents(data);
+      setError(null);
+    } catch (error) {}
+  };
 
   const handlePostSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -156,37 +148,58 @@ export default function PageView() {
     if (image) formData.append("image", image);
 
     try {
-      const response = await fetch(`/api/pages/${pageId}/create-event`, {
-        method: "POST",
+      const url = isEditMode
+        ? `/api/pages/${pageId}/events/${editingEventId}`
+        : `/api/pages/${pageId}/create-event`;
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create event");
+        throw new Error(
+          isEditMode ? "Failed to update event" : "Failed to create event"
+        );
       }
 
-      const newEvent = await response.json();
-      console.log("Event created:", newEvent);
+      const updatedEvent = await response.json();
 
-      setEvents((prevEvents) => [newEvent, ...prevEvents]);
+      if (isEditMode) {
+        setEvents((prevEvents) =>
+          prevEvents.map((event) =>
+            event._id === editingEventId ? updatedEvent : event
+          )
+        );
+      } else {
+        setEvents((prevEvents) => [updatedEvent, ...prevEvents]);
+      }
 
-      setTitle("");
-      setDescription("");
-      setDate("");
-      setTime("");
-      setDepartment("");
-      setImage(null);
-      setIsModalOpen(false);
+      resetForm();
     } catch (error) {
-      console.error("Error creating event:", error);
-      setError("Failed to create event.");
+      console.error(
+        isEditMode ? "Error updating event:" : "Error creating event:",
+        error
+      );
+      setError(
+        isEditMode ? "Failed to update event." : "Failed to create event."
+      );
     }
   };
 
   const handleEditEvent = (eventId: string) => {
-    // Implement edit functionality
-    console.log("Edit event:", eventId);
-    // You can open a modal or navigate to an edit page here
+    const eventToEdit = events.find((event) => event._id === eventId);
+    if (eventToEdit) {
+      setTitle(eventToEdit.title);
+      setDescription(eventToEdit.description);
+      setDate(eventToEdit.date);
+      setTime(eventToEdit.time);
+      setDepartment(eventToEdit.department);
+      setEditingEventId(eventId);
+      setIsEditMode(true);
+      setIsModalOpen(true);
+    }
   };
 
   const handleDeleteEvent = async () => {
@@ -213,6 +226,18 @@ export default function PageView() {
       console.error("Error deleting event:", error);
       setError("Failed to delete event.");
     }
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setDate("");
+    setTime("");
+    setDepartment("");
+    setImage(null);
+    setIsModalOpen(false);
+    setIsEditMode(false);
+    setEditingEventId(null);
   };
 
   if (loading) {
@@ -303,13 +328,20 @@ export default function PageView() {
         {isPageCreator && (
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button
+                onClick={() => {
+                  setIsEditMode(false);
+                  resetForm();
+                }}
+              >
                 <Plus className="mr-2 h-4 w-4" /> Create Event
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Create Event</DialogTitle>
+                <DialogTitle>
+                  {isEditMode ? "Edit Event" : "Create Event"}
+                </DialogTitle>
               </DialogHeader>
               <form onSubmit={handlePostSubmit} className="space-y-4">
                 <div className="space-y-2">
@@ -375,7 +407,9 @@ export default function PageView() {
                   />
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Create</Button>
+                  <Button type="submit">
+                    {isEditMode ? "Update" : "Create"}
+                  </Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -466,20 +500,6 @@ export default function PageView() {
                     </Dialog>
                   )}
                 </CardContent>
-                <CardFooter className="flex justify-between border-t pt-4">
-                  <Button variant="ghost" size="sm">
-                    <ThumbsUp className="mr-2 h-4 w-4" />
-                    Like
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <MessageCircle className="mr-2 h-4 w-4" />
-                    Comment
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Share
-                  </Button>
-                </CardFooter>
               </Card>
             </div>
           ))
